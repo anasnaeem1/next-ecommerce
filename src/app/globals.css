@@ -1,3 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar a[aria-current="page"] {
+  background-color: theme("colors.gray.200");
+  color: theme("colors.gray.900");
+}
+
+/* Global scrollbar styles */
+.scrollbar-pink {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: transparent #f0f0f0; /* transparent thumb / visible track */
+}
+
+/* WebKit */
+.scrollbar-pink::-webkit-scrollbar {
+  width: 8px; /* always 8px wide */
+}
+
+.scrollbar-pink::-webkit-scrollbar-track {
+  background-color: #f0f0f0; /* visible light track */
+  border-radius: 4px;
+}
+
+.scrollbar-pink::-webkit-scrollbar-thumb {
+  background: transparent; /* hide thumb by default */
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+/* On hover, reveal the thumb */
+.scrollbar-pink:hover::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #f472b6, #ec4899); /* your pink gradient */
+}
+
+/* Firefox: reveal thumb on hover via color swap */
+.scrollbar-pink:hover {
+  scrollbar-color: #f472b6 #f0f0f0; /* pink thumb / visible track */
+}
