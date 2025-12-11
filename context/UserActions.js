@@ -2,3 +2,7 @@
 export const LoginStart = (userCredentials) => ({
   type: "LOGIN_START",
 });
+
+export const setNotification = (notification) => ({
+  type: "SET_NOTIFICATION",
+});

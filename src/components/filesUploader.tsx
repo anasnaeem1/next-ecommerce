@@ -1,11 +1,12 @@
 "use client";
-
-import { UploadCloud } from "lucide-react";
-import { useRef, useState } from "react";
+import { Images, UploadCloud } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+// import UploadingImages from "../components/uploadingImges";
 
 type ImageData = {
   index: number;
-  image: string; // this will store the object URL for preview
+  image: string;
+  file?: File;
 };
 
 const FileUploader = () => {
@@ -25,16 +26,17 @@ const FileUploader = () => {
     const file = event.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
+
       setImages((prev) =>
         prev.map((item) =>
-          item.index === index ? { ...item, image: imageUrl } : item
+          item.index === index ? { ...item, image: imageUrl, file: file } : item
         )
       );
     }
   };
 
   return (
-    <div className="flex gap-3 flex-wrap">
+    <div className="reative flex gap-3 flex-wrap">
       {images.map((item, index) => (
         <div
           key={index}
@@ -74,6 +76,7 @@ const FileUploader = () => {
             )}
           </div>
           <input
+            name={`productImage${index + 1}`}
             type="file"
             accept="image/*"
             ref={(el) => {
@@ -84,6 +87,7 @@ const FileUploader = () => {
           />
         </div>
       ))}
+      {/* <UploadingImages images={images} /> */}
     </div>
   );
 };

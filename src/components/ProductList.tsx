@@ -1,46 +1,61 @@
-import list from "@/app/list/page";
-import Image from "next/image";
+"use client";
+import { ProductType } from "@/types";
 import Link from "next/link";
+// import Product from "./product";
 
 type ProductListProps = {
+  products: ProductType[];
   number: number;
   listPage: boolean;
 };
 
-const ProductList = ({ number, listPage }: ProductListProps) => {
+const ProductList = ({ products, number, listPage }: ProductListProps) => {
+
   return (
-    <div className=" flex flex-wrap justify-between gap-y-16">
-      {Array(number)
-        .fill(0)
-        .map((_, idx) => (
+    <div className="flex flex-wrap gap-8 lg:gap-6">
+      {Array.isArray(products) &&
+        products.length > 0 &&
+        products.map((product: ProductType) => (
           <Link
-            href={`${listPage ? "/singleProduct" : "/list"}`}
-            key={idx}
-            className="w-full sm:w-[48%] lg:w-[23%] bg-white shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+            href={listPage ? `/${product.uniqueId}` : "/list"}
+            key={product._id}
+            className="w-full sm:w-[48%] lg:w-[23%] group"
           >
-            <div className="relative w-full aspect-square">
-              <Image
-                src="https://img.freepik.com/free-photo/still-life-tech-device_23-2150722606.jpg?t=st=1744840963~exp=1744844563~hmac=f2a91caf657df8f66043f0426519e36bb92d286a4580b19d2524c42f8a6325f4&w=900"
-                alt=""
-                fill
-                sizes="25vw"
-                className="absolute object-cover z-10 rounded-md hover:opacity-0 transition-opacity duration-300 ease-in-out"
-              />
-              <Image
-                src="https://img.freepik.com/free-photo/modern-wireless-earphones-with-case-simple-concrete-background_23-2150808007.jpg?t=st=1744841065~exp=1744844665~hmac=a4cc1641e63d56b4c7e93d56ebbd2bef51e7c9b75caf9ba86a46030978f869b6&w=740"
-                alt=""
-                fill
-                sizes="25vw"
-                className="absolute object-cover rounded-md"
-              />
+            <div className="relative w-full aspect-square mb-4 overflow-hidden bg-gray-50 rounded-2xl">
+              {product?.images?.[0] && product?.images?.[1] && (
+                <>
+                  <img
+                    src={product.images[0]}
+                    alt="Product Front"
+                    className="absolute object-cover z-10 w-full h-full group-hover:opacity-0 transition-opacity duration-500"
+                  />
+                  <img
+                    src={product.images[1]}
+                    alt="Product Back"
+                    className="absolute object-cover w-full h-full"
+                  />
+                </>
+              )}
             </div>
-            <div className="p-4 flex flex-col gap-3">
-              <div className="flex justify-between">
-                <h2 className="text-lg font-semibold">Product Name</h2>
-                <p className="text-gray-600">$199</p>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-start gap-3">
+                <h2
+                  className="text-base font-medium text-gray-900 leading-tight flex-1"
+                  title={product.productTitle}
+                >
+                  {product.productTitle}
+                </h2>
+                <p className="text-gray-900 font-medium whitespace-nowrap text-lg">
+                  ${product.offerPrice ?? product.basePrice}
+                </p>
               </div>
-              <p className="text-gray-500">My description</p>
-              <button className="border text-sm hover:bg-pink-600 hover:text-white transition-all duration-300 text-pink-500 border-pink-500 rounded-full max-w-[120px] h-10 w-full">
+
+              <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
+                {product.productDesc}
+              </p>
+
+              <button className="text-sm text-gray-600 rounded-full max-w-[140px] h-10 w-full hover:text-[#F35C7A] transition-colors font-medium">
                 Add to cart
               </button>
             </div>

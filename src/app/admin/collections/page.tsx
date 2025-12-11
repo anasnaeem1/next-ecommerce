@@ -7,7 +7,7 @@ const Collections = () => {
   return (
     <div className="flex flex-col gap-5 h-full">
       <h1 className="text-lg text-black font-medium">All Products</h1>
-      <div className="max-w-[1300px] w-full bg-white h-full border border-gray-200">
+      <div className="max-w-full w-full bg-white h-full border border-gray-200">
         <div className="py-3 px-4 flex justify-between items-center border-b border-gray-200 h-[60px]">
           <div className="flex-grow">
             <h1 className="font-semibold text-gray-700">Product</h1>
@@ -47,7 +47,7 @@ const Collections = () => {
                 <h1 className="text-gray-600">$399</h1>
               </div>
               <div className="flex-none w-1/5">
-                <button className="bg-pink-500 gap-2 text-white py-2 px-4 rounded-lg flex items-center hover:bg-pink-600 transition duration-200">
+                <button className="bg-gray-500 gap-2 text-white py-2 px-4 rounded-lg flex items-center hover:bg-gray-600 transition duration-200">
                   Visit
                   <img src="/visit.svg" className="w-4 h-4" alt="" />
                 </button>

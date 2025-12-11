@@ -1,19 +1,35 @@
-import { UserType } from "./UserContext";
+import {
+  UserType,
+  NewProductType,
+  NotificationType,
+  ActionType,
+} from "./UserContext";
 
-export type ActionType =
-  | { type: "SET_USER"; payload: UserType }
-  | { type: "CLEAR_USER" };
+type StateType = {
+  user: UserType | null;
+  newProduct: NewProductType | null;
+  notification: NotificationType;
+};
 
-export default function UserReducer(
-  state: { user: UserType },
-  action: ActionType
-): { user: UserType } {
+export default function UserReducer(state: StateType, action: ActionType): StateType {
   switch (action.type) {
     case "SET_USER":
-      return { user: action.payload };
+      return { ...state, user: action.payload };
+
     case "CLEAR_USER":
-      return { user: null };
+      return { ...state, user: null };
+
+    case "SET_NEW_PRODUCT":
+      return { ...state, newProduct: action.payload };
+
+    case "SET_NOTIFICATION":
+      return { ...state, notification: action.payload };
+
+    case "CLEAR_NOTIFICATION":
+      return { ...state, notification: null };
+
     default:
       return state;
   }
 }
+
