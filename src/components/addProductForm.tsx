@@ -4,7 +4,7 @@ import axios from "axios";
 import FilesUploader from "./filesUploader";
 import CategorySelector from "./CategorySelector";
 
-const addProductForm = () => {
+const AddProductForm = () => {
   const [productAdded, setProductAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -204,4 +204,4 @@ const addProductForm = () => {
     </form>
   );
 };
-export default addProductForm;
+export default AddProductForm;

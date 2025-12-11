@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface ProductImagesEditorProps {
   images: (string | File)[];
@@ -21,9 +22,10 @@ const ProductImagesEditor = ({ images, isEditing, onImagesChange, productTitle }
 
   // Cleanup object URLs on unmount
   useEffect(() => {
+    const objectUrls = objectUrlsRef.current;
     return () => {
-      objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-      objectUrlsRef.current.clear();
+      objectUrls.forEach(url => URL.revokeObjectURL(url));
+      objectUrls.clear();
     };
   }, []);
 
@@ -104,11 +106,23 @@ const ProductImagesEditor = ({ images, isEditing, onImagesChange, productTitle }
               } ${isNewFile ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
               onClick={() => handleImageClick(index)}
             >
-              <img
-                src={imageSrc}
-                alt={`${productTitle || ''} view ${index + 1}`}
-                className="w-full h-full object-contain p-1 bg-white"
-              />
+              {imageSrc.startsWith('blob:') || imageSrc.startsWith('data:') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageSrc}
+                  alt={`${productTitle || ''} view ${index + 1}`}
+                  className="w-full h-full object-contain p-1 bg-white"
+                />
+              ) : (
+                <Image
+                  src={imageSrc}
+                  alt={`${productTitle || ''} view ${index + 1}`}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-contain p-1 bg-white"
+                  unoptimized
+                />
+              )}
               {isEditing && (
                 <>
                   {isNewFile && (

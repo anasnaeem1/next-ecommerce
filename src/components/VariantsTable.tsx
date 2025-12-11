@@ -209,7 +209,7 @@ const VariantsTableContent = ({
                 />
               </svg>
               <p>No variants added yet</p>
-              <p className="text-sm">Click "Add Variant" to get started</p>
+              <p className="text-sm">Click &quot;Add Variant&quot; to get started</p>
             </div>
           </div>
         ) : (

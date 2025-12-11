@@ -1,6 +1,7 @@
 "use client";
 import { Images, UploadCloud } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 // import UploadingImages from "../components/uploadingImges";
 
 type ImageData = {
@@ -48,11 +49,23 @@ const FileUploader = () => {
           >
             {item.image ? (
               <div className="px-6 py-1 relative">
-                <img
-                  src={item.image}
-                  alt={`Preview ${index + 1}`}
-                  className="w-[80px] h-[80px] object-cover rounded"
-                />
+                {item.image.startsWith('blob:') || item.image.startsWith('data:') ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.image}
+                    alt={`Preview ${index + 1}`}
+                    className="w-[80px] h-[80px] object-cover rounded"
+                  />
+                ) : (
+                  <Image
+                    src={item.image}
+                    alt={`Preview ${index + 1}`}
+                    width={80}
+                    height={80}
+                    className="object-cover rounded"
+                    unoptimized
+                  />
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation(); // prevent triggering the upload click

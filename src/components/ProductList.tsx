@@ -1,6 +1,7 @@
 "use client";
 import { ProductType } from "@/types";
 import Link from "next/link";
+import Image from "next/image";
 // import Product from "./product";
 
 type ProductListProps = {
@@ -24,15 +25,19 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
             <div className="relative w-full aspect-square mb-4 overflow-hidden bg-gray-50 rounded-2xl">
               {product?.images?.[0] && product?.images?.[1] && (
                 <>
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt="Product Front"
-                    className="absolute object-cover z-10 w-full h-full group-hover:opacity-0 transition-opacity duration-500"
+                    fill
+                    className="absolute object-cover z-10 group-hover:opacity-0 transition-opacity duration-500"
+                    unoptimized
                   />
-                  <img
+                  <Image
                     src={product.images[1]}
                     alt="Product Back"
-                    className="absolute object-cover w-full h-full"
+                    fill
+                    className="absolute object-cover"
+                    unoptimized
                   />
                 </>
               )}
