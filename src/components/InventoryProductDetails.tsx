@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import VariantsTable from './VariantsTable';
 import ProductImagesEditor from './ProductImagesEditor';
-import { useProduct } from '../../context/ProductContext';
+import { ProductContext } from '../../context/ProductContext';
 import {
   handleSaveVariants,
   handleSaveProduct,
@@ -35,18 +35,97 @@ interface InventoryProductDetailsProps {
 }
 
 
+// Safe hook that doesn't throw if context is not available
+function useProductSafe() {
+  const context = useContext(ProductContext);
+  return context || null;
+}
+
 const InventoryProductDetails = ({ product: productProp }: InventoryProductDetailsProps = {}) => {
- 
-  let productContext: ReturnType<typeof useProduct> | null = null;
-  try {
-    productContext = useProduct();
-  } catch (error) {
-    productContext = null;
-  }
-  
+  // Always call hooks first, before any conditional logic
+  const productContext = useProductSafe();
   const product = productContext?.product || productProp;
   
-  // Handle loading/error states
+  // Initialize all state hooks at the top
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [productSaveStatus, setProductSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Local state for variants - updated after successful save
+  const initialVariants = product?.variants?.map((variant: any) => ({
+    color: variant.color,
+    isDefault: variant.isDefault || false,
+    sizes: (variant.sizes || []).map((size: any) => ({
+      size: size.size,
+      stock: size.stock,
+      isDefault: size.isDefault || false,
+    }))
+  })) || [];
+  const [currentVariants, setCurrentVariants] = useState(initialVariants);
+  const currentVariantsRef = useRef(initialVariants);
+  
+  // Form state for editable fields - images can be string (URL) or File (new upload)
+  const [formData, setFormData] = useState({
+    productTitle: product?.productTitle || '',
+    productDesc: product?.productDesc || '',
+    basePrice: product?.basePrice || 0,
+    offerPrice: product?.offerPrice || 0,
+    images: product?.images || [] as (string | File)[],
+  });
+  
+  const [originalData, setOriginalData] = useState({
+    productTitle: product?.productTitle || '',
+    productDesc: product?.productDesc || '',
+    basePrice: product?.basePrice || 0,
+    offerPrice: product?.offerPrice || 0,
+    images: product?.images || [] as string[],
+  });
+
+  // Update formData when product changes (from context or prop)
+  useEffect(() => {
+    if (!product) return;
+    
+    const newFormData = {
+      productTitle: product.productTitle || '',
+      productDesc: product.productDesc || '',
+      basePrice: product.basePrice || 0,
+      offerPrice: product.offerPrice || 0,
+      images: product.images || [],
+    };
+    setFormData(newFormData);
+    setOriginalData(newFormData);
+  }, [product]); // Update when product changes
+
+  // Update currentVariants when product prop changes (only if content is different)
+  useEffect(() => {
+    if (!product) return;
+    
+    const newVariants = product.variants?.map((variant: any) => ({
+      color: variant.color,
+      isDefault: variant.isDefault || false,
+      sizes: (variant.sizes || []).map((size: any) => ({
+        size: size.size,
+        stock: size.stock,
+        isDefault: size.isDefault || false,
+      }))
+    })) || [];
+    
+    // Only update if content is actually different (deep comparison)
+    const currentStr = JSON.stringify(currentVariantsRef.current);
+    const newStr = JSON.stringify(newVariants);
+    if (currentStr !== newStr) {
+      setCurrentVariants(newVariants);
+      currentVariantsRef.current = newVariants;
+    }
+  }, [product]);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentVariantsRef.current = currentVariants;
+  }, [currentVariants]);
+  
+  // Handle loading/error states - after all hooks
   if (!product) {
     if (productContext?.loading) {
       return (
@@ -75,41 +154,6 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
     );
   }
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [productSaveStatus, setProductSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [isEditing, setIsEditing] = useState(false);
-  
-  // Local state for variants - updated after successful save
-  const initialVariants = product.variants?.map((variant: any) => ({
-    color: variant.color,
-    isDefault: variant.isDefault || false,
-    sizes: (variant.sizes || []).map((size: any) => ({
-      size: size.size,
-      stock: size.stock,
-      isDefault: size.isDefault || false,
-    }))
-  })) || [];
-  const [currentVariants, setCurrentVariants] = useState(initialVariants);
-  const currentVariantsRef = useRef(initialVariants);
-  
-  // Form state for editable fields - images can be string (URL) or File (new upload)
-  const [formData, setFormData] = useState({
-    productTitle: product.productTitle || '',
-    productDesc: product.productDesc || '',
-    basePrice: product.basePrice || 0,
-    offerPrice: product.offerPrice || 0,
-    images: product.images || [] as (string | File)[],
-  });
-  
-  const [originalData, setOriginalData] = useState({
-    productTitle: product.productTitle || '',
-    productDesc: product.productDesc || '',
-    basePrice: product.basePrice || 0,
-    offerPrice: product.offerPrice || 0,
-    images: product.images || [] as string[],
-  });
-
   // Check if there are unsaved changes (including image changes)
   const hasImageChanges = formData.images.some((img, idx) => {
     const originalImg = originalData.images[idx];
@@ -125,47 +169,6 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
     formData.offerPrice !== originalData.offerPrice;
 
   const hasUnsavedChanges = hasImageChanges || hasOtherChanges;
-
-  // Update formData when product changes (from context or prop)
-  useEffect(() => {
-    if (!product) return;
-    
-    const newFormData = {
-      productTitle: product.productTitle || '',
-      productDesc: product.productDesc || '',
-      basePrice: product.basePrice || 0,
-      offerPrice: product.offerPrice || 0,
-      images: product.images || [],
-    };
-    setFormData(newFormData);
-    setOriginalData(newFormData);
-  }, [(product as any)?._id || (product as any)?.productId]); // Update when product ID changes
-
-  // Update currentVariants when product prop changes (only if content is different)
-  useEffect(() => {
-    const newVariants = product.variants?.map((variant: any) => ({
-      color: variant.color,
-      isDefault: variant.isDefault || false,
-      sizes: (variant.sizes || []).map((size: any) => ({
-        size: size.size,
-        stock: size.stock,
-        isDefault: size.isDefault || false,
-      }))
-    })) || [];
-    
-    // Only update if content is actually different (deep comparison)
-    const currentStr = JSON.stringify(currentVariantsRef.current);
-    const newStr = JSON.stringify(newVariants);
-    if (currentStr !== newStr) {
-      setCurrentVariants(newVariants);
-      currentVariantsRef.current = newVariants;
-    }
-  }, [product.variants]);
-  
-  // Keep ref in sync with state
-  useEffect(() => {
-    currentVariantsRef.current = currentVariants;
-  }, [currentVariants]);
 
   const onSaveVariants = async (variants: any) => {
     

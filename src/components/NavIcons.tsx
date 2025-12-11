@@ -2,6 +2,7 @@
 import { useContext, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useClerk, UserButton, useUser } from "@clerk/nextjs";
+import Image from "next/image";
 import { UserContext } from "../../context/UserContext";
 import { CartIcon } from "../../assets/assets.js";
 
@@ -68,8 +69,10 @@ const NavIcons = () => {
           key={navIcon.id}
           className="relative w-[25px] h-[25px] flex items-center justify-center"
         >
-          <img
+          <Image
             src={navIcon.icon}
+            width={25}
+            height={25}
             className="w-full cursor-pointer h-full rounded-full"
             alt="navicon"
             onClick={() => {
@@ -81,6 +84,7 @@ const NavIcons = () => {
                 HandleDropdown(navIcon.id);
               }
             }}
+            unoptimized
           />
 
           {navIcon.id === "notificationIcon" && (
@@ -111,8 +115,10 @@ const NavIcons = () => {
         </div>
       ) : (
         <div className="relative w-[25px] h-[25px] flex items-center justify-center">
-          <img
-            src="profile.png"
+          <Image
+            src="/profile.png"
+            width={25}
+            height={25}
             className="w-full cursor-pointer h-full rounded-full"
             alt="navicon"
             onClick={() => {
@@ -121,6 +127,7 @@ const NavIcons = () => {
                 openSignIn();
               }
             }}
+            unoptimized
           />
         </div>
       )}

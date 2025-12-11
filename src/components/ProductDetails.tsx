@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import VariantsTable from './VariantsTable';
 import ProductImagesEditor from './ProductImagesEditor';
-import { useProduct } from '../../context/ProductContext';
+import { ProductContext } from '../../context/ProductContext';
 import { 
   saveVariantChanges, 
   getProductVariants,
@@ -38,58 +38,25 @@ interface InventoryProductDetailsProps {
 }
 
 
+// Safe hook that doesn't throw if context is not available
+function useProductSafe() {
+  const context = useContext(ProductContext);
+  return context || null;
+}
+
 const InventoryProductDetails = ({ product: productProp }: InventoryProductDetailsProps = {}) => {
-  // Use ProductProvider if available, otherwise fall back to prop
-  // Note: This component should be wrapped in ProductProvider when used in inventory/[slug]
-  let productContext: ReturnType<typeof useProduct> | null = null;
-  
-  // Check if we're inside a ProductProvider by trying to use the hook
-  // We'll handle the error case gracefully
-  try {
-    productContext = useProduct();
-  } catch (error) {
-    // ProductProvider not available, will use prop instead
-    productContext = null;
-  }
-  
+  // Always call hooks first, before any conditional logic
+  const productContext = useProductSafe();
   const product = productContext?.product || productProp;
   
-  // Handle loading/error states
-  if (!product) {
-    if (productContext?.loading) {
-      return (
-        <div className="w-full flex items-center justify-center py-12">
-          <div className="text-gray-500">Loading product...</div>
-        </div>
-      );
-    }
-    if (productContext?.error) {
-      return (
-        <div className="w-full flex items-center justify-center py-12">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
-            <p className="text-gray-600">{productContext.error}</p>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div className="w-full flex items-center justify-center py-12">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
-          <p className="text-gray-600">No product data available</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Initialize all state hooks at the top
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [productSaveStatus, setProductSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isEditing, setIsEditing] = useState(false);
   
   // Local state for variants - updated after successful save
-  const initialVariants = product.variants?.map(variant => ({
+  const initialVariants = product?.variants?.map(variant => ({
     color: variant.color,
     sizes: variant.sizes || []
   })) || [];
@@ -98,19 +65,19 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
   
   // Form state for editable fields - images can be string (URL) or File (new upload)
   const [formData, setFormData] = useState({
-    productTitle: product.productTitle || '',
-    productDesc: product.productDesc || '',
-    basePrice: product.basePrice || 0,
-    offerPrice: product.offerPrice || 0,
-    images: product.images || [] as (string | File)[],
+    productTitle: product?.productTitle || '',
+    productDesc: product?.productDesc || '',
+    basePrice: product?.basePrice || 0,
+    offerPrice: product?.offerPrice || 0,
+    images: product?.images || [] as (string | File)[],
   });
   
   const [originalData, setOriginalData] = useState({
-    productTitle: product.productTitle || '',
-    productDesc: product.productDesc || '',
-    basePrice: product.basePrice || 0,
-    offerPrice: product.offerPrice || 0,
-    images: product.images || [] as string[],
+    productTitle: product?.productTitle || '',
+    productDesc: product?.productDesc || '',
+    basePrice: product?.basePrice || 0,
+    offerPrice: product?.offerPrice || 0,
+    images: product?.images || [] as string[],
   });
 
   // Check if there are unsaved changes (including image changes)
@@ -142,10 +109,12 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
     };
     setFormData(newFormData);
     setOriginalData(newFormData);
-  }, [(product as any)?._id || (product as any)?.productId]); // Update when product ID changes
+  }, [product]); // Update when product changes
 
   // Update currentVariants when product prop changes (only if content is different)
   useEffect(() => {
+    if (!product) return;
+    
     const newVariants = product.variants?.map(variant => ({
       color: variant.color,
       sizes: variant.sizes || []
@@ -158,12 +127,41 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
       setCurrentVariants(newVariants);
       currentVariantsRef.current = newVariants;
     }
-  }, [product.variants]);
+  }, [product]);
   
   // Keep ref in sync with state
   useEffect(() => {
     currentVariantsRef.current = currentVariants;
   }, [currentVariants]);
+  
+  // Handle loading/error states - after all hooks
+  if (!product) {
+    if (productContext?.loading) {
+      return (
+        <div className="w-full flex items-center justify-center py-12">
+          <div className="text-gray-500">Loading product...</div>
+        </div>
+      );
+    }
+    if (productContext?.error) {
+      return (
+        <div className="w-full flex items-center justify-center py-12">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
+            <p className="text-gray-600">{productContext.error}</p>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="w-full flex items-center justify-center py-12">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
+          <p className="text-gray-600">No product data available</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSaveVariants = async (variants: any) => {
     const productId = (product as any)._id || (product as any).productId || productContext?.productId;
