@@ -10,6 +10,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "images.pexels.com",
         port: "",
         pathname: "/**",
@@ -17,6 +23,12 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "img.clerk.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
         port: "",
         pathname: "/**",
       },

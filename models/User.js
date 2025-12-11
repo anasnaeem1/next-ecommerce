@@ -19,15 +19,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    cartItems: {
-      type: Object,
-      default: {},
+    Cart: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+      default: null,
     },
   },
   { minimize: false }
 );
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const User = mongoose.models?.User || mongoose.model("User", userSchema);
 
 export default User;
 // hello

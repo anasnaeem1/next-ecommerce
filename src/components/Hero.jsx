@@ -1,7 +1,8 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Link2 } from "lucide-react";
 
 const Hero = () => {
   const slides = [
@@ -10,14 +11,14 @@ const Hero = () => {
       title: "Summer Sale Collections",
       description: "Sale! Up to 50% off!",
       img: "https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=800",
-      bg: "bg-gradient-to-r from-yellow-50 to-pink-50",
+      bg: "bg-gradient-to-r from-yellow-50 to-gray-50",
     },
     {
       id: 2,
       title: "Winter Sale Collections",
       description: "Sale! Up to 50% off!",
       img: "https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=800",
-      bg: "bg-gradient-to-r from-pink-50 to-blue-50",
+      bg: "bg-gradient-to-r from-gray-50 to-blue-50",
     },
     {
       id: 3,
@@ -38,6 +39,15 @@ const Hero = () => {
       behavior: "smooth",
     });
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextIndex = (activeIndex + 1) % slides.length;
+      goToSlide(nextIndex);
+    }, 3000); // change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [activeIndex]);
 
   return (
     <div className="px-4 py-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative">

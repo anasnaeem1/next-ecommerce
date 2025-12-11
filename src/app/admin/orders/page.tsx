@@ -11,7 +11,7 @@ const Orders = () => {
             <li className="flex justify-between">
               {/* Order Icon And Names */}
               <div className="flex gap-5">
-                <div className="bg-pink-100 flex items-center border-gray-300 border justify-center w-20 h-20 rounded-md transition-all duration-300 cursor-pointer">
+                <div className="bg-gray-100 flex items-center border-gray-300 border justify-center w-20 h-20 rounded-md transition-all duration-300 cursor-pointer">
                   <Image
                     src="/Order.svg"
                     alt="Product"

@@ -7,7 +7,9 @@ const Footer = () => {
   const pathname = usePathname();
   const hideFooterRoutes = ["/login", "/register"];
 
-  const showFooter = !hideFooterRoutes.includes(pathname);
+  const isAdminPage = pathname.startsWith("/admin");
+  const isCheckoutPage = pathname.startsWith("/checkout");
+  const showFooter = !hideFooterRoutes.includes(pathname) && !isAdminPage && !isCheckoutPage;
   const socials = [
     {
       name: "Instagram",

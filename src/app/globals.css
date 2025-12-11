@@ -1,8 +1,18 @@
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 .scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
@@ -42,4 +52,15 @@
 /* Firefox: reveal thumb on hover via color swap */
 .scrollbar-pink:hover {
   scrollbar-color: #f472b6 #f0f0f0; /* pink thumb / visible track */
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
