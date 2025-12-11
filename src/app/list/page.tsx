@@ -7,10 +7,15 @@ import Category from "../../../models/Category.js";
 
 export const dynamic = "force-dynamic";
 
-const ListPage = async ({ searchParams }: { searchParams: { category?: string } }) => {
+interface PageProps {
+  searchParams: Promise<{ category?: string }>;
+}
+
+const ListPage = async ({ searchParams }: PageProps) => {
   await connectDb();
 
-  const categoryParam = searchParams?.category;
+  const resolvedSearchParams = await searchParams;
+  const categoryParam = resolvedSearchParams?.category;
   const { success, products: productList, message } = await getProducts(categoryParam as any);
   
   // Get category label for display
