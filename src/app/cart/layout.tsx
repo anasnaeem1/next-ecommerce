@@ -3,6 +3,10 @@ import { CartProvider } from "../../../context/CartContext";
 import { getCart } from "../../serverActions/Cart/cartActions";
 import { CartType } from "@/types";
 
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function CartLayout({
   children,
 }: {
@@ -26,8 +30,12 @@ export default async function CartLayout({
         } as CartType;
       }
     }
-  } catch (error) {
-    console.error("Error fetching cart in layout:", error);
+  } catch (error: any) {
+    // Silently handle dynamic server usage errors during build
+    // This is expected when using auth() in layouts
+    if (error?.digest !== 'DYNAMIC_SERVER_USAGE') {
+      console.error("Error fetching cart in layout:", error);
+    }
   }
 
   return (
