@@ -3,10 +3,19 @@ import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 import { FiCheckCircle, FiXCircle, FiAlertTriangle } from "react-icons/fi";
 
-export default function Notification() {
-  const { notification } = useContext(UserContext);
+interface NotificationProps {
+  message?: string;
+  type?: "success" | "error" | "warn";
+}
+
+export default function Notification({ message, type }: NotificationProps = {} as NotificationProps) {
+  const { notification: contextNotification } = useContext(UserContext);
   const [visible, setVisible] = useState(false);
-  // const { dispatch } = useContext(UserContext);
+  
+  // Use props if provided, otherwise use context
+  const notification = message && type 
+    ? { type: type.charAt(0).toUpperCase() + type.slice(1) as "Success" | "Error" | "Warn", label: message }
+    : contextNotification;
 
   useEffect(() => {
     if (!notification) return;

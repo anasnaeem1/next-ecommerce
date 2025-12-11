@@ -1,12 +1,12 @@
 "use client";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { UserContext } from "../../context/UserContext";
 import { CartIcon } from "../../assets/assets.js";
 
-const NavIcons = () => {
+const NavIconsContent = () => {
   const [openIconId, setOpenIconId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -132,6 +132,14 @@ const NavIcons = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const NavIcons = () => {
+  return (
+    <Suspense fallback={null}>
+      <NavIconsContent />
+    </Suspense>
   );
 };
 

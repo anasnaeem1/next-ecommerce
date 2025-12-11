@@ -16,7 +16,7 @@ import { ensureSessionOnLogin, getUserBySessionId } from "@/serverActions/user";
 import { User, UserType, NotificationType } from "@/types";
 
 // Re-export types for backward compatibility
-export type { User, UserType };
+export type { User, UserType, NotificationType };
 
 export type NewProductType = {
   productTitle: string;
