@@ -38,11 +38,11 @@ interface VariantContextType {
   editColorCodeValue: string;
   
   // Refs
-  variantInputRef: React.RefObject<HTMLInputElement>;
-  sizeInputRef: React.RefObject<HTMLInputElement>;
-  quantityInputRef: React.RefObject<HTMLInputElement>;
-  sizeNameInputRef: React.RefObject<HTMLInputElement>;
-  colorNameInputRef: React.RefObject<HTMLInputElement>;
+  variantInputRef: React.RefObject<HTMLInputElement | null>;
+  sizeInputRef: React.RefObject<HTMLInputElement | null>;
+  quantityInputRef: React.RefObject<HTMLInputElement | null>;
+  sizeNameInputRef: React.RefObject<HTMLInputElement | null>;
+  colorNameInputRef: React.RefObject<HTMLInputElement | null>;
   
   // Actions
   setShowAddVariant: (show: boolean) => void;

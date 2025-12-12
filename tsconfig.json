@@ -14,7 +14,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -34,8 +34,17 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/components/Hero.jsx",
-    "src/components/Hero.jsx"
-, "context/AppContext.tsx", "context/UserContext.tsx", "src/context/UserContext.jsx"  , "context/UserContext.tsx", "src/app/admin/page.jtx", "src/app/api/layout.jsx", "src/components/uploadingImges.tsx", "src/serverActions/review.js"],
+    "src/components/Hero.jsx",
+    "context/AppContext.tsx",
+    "context/UserContext.tsx",
+    "src/context/UserContext.jsx",
+    "context/UserContext.tsx",
+    "src/app/admin/page.jtx",
+    "src/app/api/layout.jsx",
+    "src/components/uploadingImges.tsx",
+    "src/serverActions/review.js",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
