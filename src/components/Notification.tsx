@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 import { FiCheckCircle, FiXCircle, FiAlertTriangle } from "react-icons/fi";
 
@@ -30,7 +30,7 @@ export default function Notification({ message, type }: NotificationProps = {} a
   // black toolbar style with subtle accent colors
   const typeStyles: Record<
     string,
-    { icon: JSX.Element; bg: string; text: string }
+    { icon: React.ReactElement; bg: string; text: string }
   > = {
     Success: {
       icon: <FiCheckCircle />,
