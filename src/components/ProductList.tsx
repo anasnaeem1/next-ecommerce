@@ -23,22 +23,34 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
             className="w-full sm:w-[48%] lg:w-[23%] group"
           >
             <div className="relative w-full aspect-square mb-4 overflow-hidden bg-gray-50 rounded-2xl">
-              {product?.images?.[0] && product?.images?.[1] && (
+              {product.images?.[0] && (
                 <>
-                  <Image
-                    src={product.images[0]}
-                    alt="Product Front"
-                    fill
-                    className="absolute object-cover z-10 group-hover:opacity-0 transition-opacity duration-500"
-                    unoptimized
-                  />
-                  <Image
-                    src={product.images[1]}
-                    alt="Product Back"
-                    fill
-                    className="absolute object-cover"
-                    unoptimized
-                  />
+                  {product.images[1] ? (
+                    <>
+                      <Image
+                        src={product.images[0]}
+                        alt={product.productTitle}
+                        fill
+                        className="absolute object-cover z-10 group-hover:opacity-0 transition-opacity duration-500"
+                        unoptimized
+                      />
+                      <Image
+                        src={product.images[1]}
+                        alt={`${product.productTitle} — alternate view`}
+                        fill
+                        className="absolute object-cover"
+                        unoptimized
+                      />
+                    </>
+                  ) : (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.productTitle}
+                      fill
+                      className="absolute object-cover"
+                      unoptimized
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -60,9 +72,9 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
                 {product.productDesc}
               </p>
 
-              <button className="text-sm text-gray-600 rounded-full max-w-[140px] h-10 w-full hover:text-[#F35C7A] transition-colors font-medium">
+              <span className="inline-flex items-center justify-center text-sm text-gray-600 rounded-full max-w-[140px] h-10 w-full group-hover:text-[#F35C7A] transition-colors font-medium">
                 Add to cart
-              </button>
+              </span>
             </div>
           </Link>
         ))}

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Filter from "@/components/Filter";
 import ProductList from "@/components/ProductList";
 import {connectDb} from "../../../config/db.js";
-import { getProducts } from "@/serverActions/Product./productActions.js";
+import { getProducts } from "../../serverActions/Product/productActions.js";
 import Category from "../../../models/Category.js";
 
 export const dynamic = "force-dynamic";
