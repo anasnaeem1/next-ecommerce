@@ -1,5 +1,5 @@
 import { ProductProvider } from "../../../../../context/ProductContext";
-import { getProductDetails } from "../../../../serverActions/Product./productActions";
+import { getProductDetails } from "@/serverActions/Product/productActions";
 
 interface LayoutProps {
   children: React.ReactNode;

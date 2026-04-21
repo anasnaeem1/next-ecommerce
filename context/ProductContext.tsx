@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
 import { ProductType, VariantType } from "@/types";
-import { getProductDetails } from "../src/serverActions/Product./productActions";
+import { getProductDetails } from "@/serverActions/Product/productActions";
 
 interface ProductContextType {
   product: ProductType | null;
