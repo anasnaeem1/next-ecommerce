@@ -19,12 +19,6 @@ const AdminSidebar = () => {
       href: "/admin/collections",
     },
     {
-      id: "inventory",
-      label: "Inventory",
-      icon: "/inventory.svg",
-      href: "/admin/inventory",
-    },
-    {
       id: "ordersList",
       label: "Orders",
       icon: "/orderList.svg",
@@ -33,12 +27,12 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <aside className="w-64 fixed top-20 left-0 h-[calc(100vh-80px)] overflow-y-auto border-r border-gray-200 py-6 bg-white shadow-lg z-[9998]">
+    <aside className="w-64 fixed top-20 left-0 h-[calc(100vh-80px)] overflow-y-auto border-r border-slate-300 py-6 bg-slate-50 shadow-sm z-[9998]">
       <div className="px-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-800 tracking-wide">
+        <h2 className="text-xl font-bold text-slate-800 tracking-wide">
           Admin Panel
         </h2>
-        <div className="w-12 h-1 bg-gradient-to-r from-gray-400 to-gray-300 rounded-full mt-2"></div>
+        <div className="w-12 h-1 bg-gradient-to-r from-indigo-500 to-indigo-300 rounded-full mt-2"></div>
       </div>
       <ul className="space-y-1 px-3">
         {menuItems.map((item) => {
@@ -49,14 +43,14 @@ const AdminSidebar = () => {
                 href={item.href}
                 className={`flex items-center px-4 gap-4 py-4 text-sm font-medium rounded-lg mx-2 transition-all duration-200 ${
                   isActive
-                    ? "border-r-[5px] border-gray-500 bg-gray-50 text-gray-700 shadow-sm"
-                    : "border-r-[5px] border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                    ? "border-r-[4px] border-indigo-500 bg-indigo-50/70 text-indigo-700 shadow-sm"
+                    : "border-r-[4px] border-transparent text-slate-600 hover:bg-white hover:text-slate-800"
                 }`}
               >
                 <img
                   src={item.icon}
                   className={`w-5 h-5 transition-colors ${
-                    isActive ? "opacity-90" : "opacity-70"
+                    isActive ? "opacity-100" : "opacity-70"
                   }`}
                   alt={item.label}
                 />

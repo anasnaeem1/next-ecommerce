@@ -60,13 +60,31 @@ export const getProduct = async (productId, productUniqueName) => {
   }
 };
 
-export const getProducts = async (category = null) => {
+export const getProducts = async (category = null, size = null, color = null) => {
   try {
     await connectDb();
     let query = {};
     if (category && typeof category === 'string') {
    const escapedCategory = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.category = new RegExp(`^${escapedCategory}(\\?|$)`, 'i');
+    }
+
+    const variantMatch = {};
+    if (color && typeof color === "string") {
+      const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      variantMatch.color = new RegExp(`^${escapedColor}$`, "i");
+    }
+    if (size && typeof size === "string") {
+      const escapedSize = size.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      variantMatch.sizes = {
+        $elemMatch: {
+          size: new RegExp(`^${escapedSize}$`, "i"),
+          stock: { $gt: 0 },
+        },
+      };
+    }
+    if (Object.keys(variantMatch).length > 0) {
+      query.variants = { $elemMatch: variantMatch };
     }
     
     const products = await Product.find(query).lean();

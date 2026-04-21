@@ -9,7 +9,11 @@ interface PageProps {
 }
 
 const ProductInventoryPage = async ({ params }: PageProps) => {
-  return <InventoryProductDetails />;
+  return (
+    <div className="w-full min-h-[calc(100vh-140px)]">
+      <InventoryProductDetails />
+    </div>
+  );
 };
 
 export default ProductInventoryPage;

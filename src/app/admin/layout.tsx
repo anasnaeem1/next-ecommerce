@@ -7,7 +7,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
 
   return (
-    <div className="flex overflow-hidden bg-gray-50">
+    <div className="flex w-full overflow-hidden bg-gray-50">
       {/* Sidebar */}
       <AdminSidebar/>
 

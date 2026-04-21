@@ -50,7 +50,7 @@ const Hero = () => {
   }, [activeIndex]);
 
   return (
-    <div className="px-4 py-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative">
+    <div className="relative">
       {/* Slider */}
       <div
         ref={sliderRef}

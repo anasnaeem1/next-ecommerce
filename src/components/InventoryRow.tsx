@@ -32,31 +32,33 @@ const InventoryRow = ({ product }: InventoryRowProps) => {
   const stockInfo = getStockLevel(currentQuantity);
 
   return (
-    <li className="p-4 w-full flex justify-between items-center border-t border-gray-200">
-      <div className="flex items-center gap-4 w-2/5">
+    <tr className="border-b border-gray-200 hover:bg-gray-50/60 transition-colors">
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-4 min-w-0">
         <img
           src={product.images?.[0] || "/product.png"}
           alt={product.productTitle}
-          width={100}
-          height={100}
-          className="object-cover rounded-md"
+          width={64}
+          height={64}
+          className="object-cover rounded-md border border-gray-200"
         />
-        <h1 className="text-gray-700">{product.productTitle}</h1>
-      </div>
+          <h1 className="text-gray-700 truncate">{product.productTitle}</h1>
+        </div>
+      </td>
 
-      <div className="flex-none w-1/6">
+      <td className="px-5 py-4">
         <h1 className="text-gray-600 text-sm">{product.uniqueId}</h1>
-      </div>
+      </td>
       
-      <div className="flex-none w-1/6">
+      <td className="px-5 py-4">
         <VariantSelector 
           product={product} 
           onVariantChange={handleVariantChange}
           calculationMethod="sum"
         />
-      </div>
+      </td>
 
-      <div className="flex-none w-1/6">
+      <td className="px-5 py-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className={`px-2 py-1 rounded text-xs font-medium ${stockInfo.color}`}>
@@ -66,15 +68,15 @@ const InventoryRow = ({ product }: InventoryRowProps) => {
           </div>
           <span className="text-xs text-gray-500 truncate">{currentVariantName}</span>
         </div>
-      </div>
+      </td>
       
-      <div className="flex-none w-1/6">
+      <td className="px-5 py-4">
         <button onClick={handleUpdateClick} className="bg-gray-600 gap-2 text-white py-2 px-4 rounded-lg flex items-center hover:bg-gray-700 transition duration-200">
           Update
           <img src="/visit.svg" className="w-4 h-4" alt="" />
         </button>
-      </div>
-    </li>
+      </td>
+    </tr>
   );
 };
 

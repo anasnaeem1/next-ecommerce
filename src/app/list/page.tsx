@@ -8,7 +8,7 @@ import Category from "../../../models/Category.js";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; size?: string; color?: string }>;
 }
 
 const ListPage = async ({ searchParams }: PageProps) => {
@@ -16,15 +16,26 @@ const ListPage = async ({ searchParams }: PageProps) => {
 
   const resolvedSearchParams = await searchParams;
   const categoryParam = resolvedSearchParams?.category;
-  const { success, products: productList, message } = await getProducts(categoryParam as any);
+  const sizeParam = resolvedSearchParams?.size;
+  const colorParam = resolvedSearchParams?.color;
+  const categoryDoc = await Category.findOne().lean();
+  const categoryOptions = Array.isArray((categoryDoc as any)?.categories)
+    ? (categoryDoc as any).categories.map((cat: { key: string }) => cat.key)
+    : [];
+  const { success, products: productList, message } = await getProducts(
+    categoryParam as any,
+    sizeParam as any,
+    colorParam as any
+  );
+  const safeProductList = Array.isArray(productList) ? productList : [];
+  const productCount = safeProductList.length;
   
   // Get category label for display
   let categoryLabel = "All Products";
   if (categoryParam) {
     try {
-      const categoryDoc = await Category.findOne();
-      if (categoryDoc) {   
-        const parentCategory = categoryDoc.categories.find(
+      if (categoryDoc && Array.isArray((categoryDoc as any).categories)) {
+        const parentCategory = (categoryDoc as any).categories.find(
           (cat: { key: string; label: string }) => cat.key === categoryParam.toLowerCase()
         );
         if (parentCategory) {
@@ -70,7 +81,12 @@ const ListPage = async ({ searchParams }: PageProps) => {
 
         {/* Filter Section */}
         <div className="mb-16">
-          <Filter />
+          <Filter
+            selectedCategory={categoryParam || ""}
+            selectedSize={sizeParam || ""}
+            selectedColor={colorParam || ""}
+            categoryOptions={categoryOptions}
+          />
         </div>
 
         {/* Product List Section */}
@@ -80,13 +96,17 @@ const ListPage = async ({ searchParams }: PageProps) => {
               {categoryLabel}
             </h2>
             <div className="mt-2 w-16 h-0.5 bg-gray-300"></div>
-            {categoryParam && (
-              <p className="mt-4 text-sm text-gray-500">
-                Showing {productList?.length || 0} product{productList?.length !== 1 ? 's' : ''} in this category
-              </p>
+            <p className="mt-4 text-sm text-gray-500">
+              Showing {productCount} product{productCount !== 1 ? "s" : ""}
+              {categoryParam ? ` in ${categoryLabel}` : " in all categories"}
+              {sizeParam ? ` with size ${sizeParam}` : ""}
+              {colorParam ? ` and color ${colorParam}` : ""}
+            </p>
+            {!success && (
+              <p className="mt-2 text-sm text-red-500">{message || "Unable to load products right now."}</p>
             )}
           </div>
-          <ProductList products={productList || []} number={8} listPage={true} />
+          <ProductList products={safeProductList} number={8} listPage={true} />
         </div>
       </div>
     </div>
