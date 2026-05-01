@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSingleProduct } from "../../../serverActions/product";
+import { getSingleProduct } from "@/serverActions/product";
 
 export const POST = async (req) => {
   try {

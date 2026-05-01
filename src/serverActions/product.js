@@ -1,7 +1,6 @@
 "use server";
 
 import { connectDb } from "../../config/db.js";
-import axios from "axios";
 import Product from "../../models/Product.js";
 import { calculateTotalStock } from "../utils/variantCalculations";
 
@@ -113,8 +112,16 @@ export const getAllProducts = async () => {
 
 export const getSingleProduct = async (slug) => {
   try {
-    const productDetails = await axios.get(`/api/get-products/${slug}`);
-    return { success: true, product: productDetails };
+    if (slug == null || String(slug).trim() === "") {
+      return { success: false, message: "Slug is required" };
+    }
+    const id = String(slug).trim();
+    const ProductModel = await getProductModel();
+    const doc = await ProductModel.findOne({ uniqueId: id }).lean();
+    if (!doc) {
+      return { success: false, message: "Product not found" };
+    }
+    return { success: true, product: productForClient(doc) };
   } catch (error) {
     return { success: false, message: error.message };
   }

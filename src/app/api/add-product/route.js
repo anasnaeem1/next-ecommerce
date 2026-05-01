@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
-import { AddProduct } from "../../../serverActions/product";
+import { AddProduct } from "@/serverActions/product";
 
 // Setup Cloudinary config
 cloudinary.config({
@@ -114,18 +114,3 @@ export const POST = async (req) => {
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 };
-
-// export const POST = async () => {
-//   const result = await addDummyProduct();
-//   if (result.success) {
-//     return NextResponse.json({
-//       message: "Dummy product added",
-//       product: result.product,
-//     });
-//   } else {
-//     return NextResponse.json(
-//       { message: result.message },
-//       { status: 500 }
-//     );
-//   }
-// };

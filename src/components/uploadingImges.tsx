@@ -2,7 +2,7 @@
 // // import React from "react";
 // import axios from "axios";
 // import Product from "../../models/Product";
-// import { uploadImagesToCloudinary, addDummyProduct } from "../apiCalls/product";
+// import { uploadImagesToCloudinary } from "../apiCalls/product";
 
 // type ImageData = {
 //   index: number;

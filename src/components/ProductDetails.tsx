@@ -4,15 +4,14 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import VariantsTable from './VariantsTable';
 import ProductImagesEditor from './ProductImagesEditor';
 import { ProductContext } from '../../context/ProductContext';
-import { 
-  saveVariantChanges, 
+import {
+  saveVariantChanges,
   getProductVariants,
-  updateProductVariants,
   addVariantToProduct,
   removeVariantFromProduct,
-  updateSizeInVariant
-} from '../serverActions/ProductVariants/productVariants';
-import { updateProduct } from '../serverActions/product';
+  updateSizeInVariant,
+} from "@/serverActions/ProductVariants/productVariants";
+import { updateProduct } from "@/serverActions/product";
 
 interface InventoryProductDetailsProps {
   product?: {

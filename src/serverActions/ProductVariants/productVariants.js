@@ -11,6 +11,51 @@ import {
 } from "./savingVariant";
 
 /**
+ * Update product variants
+ * @param {string} productId - The uniqueId of the product
+ * @param {Array} variants - Array of variant objects with color and sizes
+ * @param {number} totalStock - Total stock quantity
+ * @returns {Object} Success status and updated product
+ */
+export const updateProductVariants = async (productId, variants, totalStock) => {
+  try {
+    const Product = await getProductModel();
+
+    // Find and update the product
+    const updatedProduct = await Product.findOneAndUpdate(
+      { uniqueId: productId },
+      {
+        $set: {
+          variants: variants,
+          totalStock: totalStock,
+        },
+      },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!updatedProduct) {
+      return {
+        success: false,
+        message: "Product not found",
+      };
+    }
+
+    const plainProduct = JSON.parse(JSON.stringify(updatedProduct));
+
+    return {
+      success: true,
+      product: plainProduct,
+    };
+  } catch (error) {
+    console.error("Error updating product variants:", error);
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+/**
  * Get product variants by product ID
  * @param {string} productId - The uniqueId of the product
  * @returns {Object} Success status and product variants
