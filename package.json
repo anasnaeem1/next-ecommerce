@@ -19,7 +19,7 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "formidable": "^3.5.4",
-    "inngest": "^3.35.1",
+    "inngest": "^3.54.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.488.0",
     "mongoose": "^8.14.0",

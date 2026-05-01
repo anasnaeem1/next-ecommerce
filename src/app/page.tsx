@@ -7,7 +7,6 @@ import { ProductType } from "@/types";
 const FeaturedProducts = async() => {
   "use client";
   const featuredProducts = await getFeaturedProduct()
-  console.log(featuredProducts.products)
 
   return (
     <ProductList products={featuredProducts.products as ProductType[]} number={4} listPage={false} />
@@ -17,7 +16,6 @@ const FeaturedProducts = async() => {
 const NewProducts = async() => {
   "use client";
   const newProducts = await getNewProducts()
-  console.log(newProducts.products)
 
   return (
     <ProductList products={newProducts.products as ProductType[]} number={4} listPage={false} />
