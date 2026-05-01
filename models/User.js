@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema(
       ref: "Cart",
       default: null,
     },
+    role : {
+      type : String,
+      default: "customer",
+      required: true
+    }
   },
   { minimize: false }
 );

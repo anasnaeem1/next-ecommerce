@@ -35,14 +35,14 @@ function MobileNavDropdown({
       <button
         type="button"
         aria-label="Close menu"
-        className="fixed inset-0 z-[9998] bg-black/40 md:hidden"
+        className="fixed inset-0 z-[9998] bg-black/40 lg:hidden"
         onClick={onClose}
       />
       <div
         id="mobile-nav-dropdown"
         role="menu"
         aria-label="Mobile navigation"
-        className=" absolute right-0 top-[calc(100%+0.5rem)] z-[9999] w-[min(calc(100vw-2rem),20rem)] rounded-lg border border-gray-200 bg-white py-4 shadow-xl md:hidden"
+        className=" absolute right-0 top-[calc(100%+0.5rem)] z-[9999] w-[min(calc(100vw-2rem),20rem)] rounded-lg border border-gray-200 bg-white py-4 shadow-xl lg:hidden"
       >
         <nav className=" flex flex-col gap-1 px-2">
           {MOBILE_NAV_LINKS.map((item) =>
@@ -159,14 +159,14 @@ const Navbar = () => {
           <NavLinks />
         </div>
 
-        <div className="md:flex hidden gap-3 items-center">
+        <div className="lg:flex hidden gap-3 items-center">
           <div className="w-full max-w-[300px]">
             <Search />
           </div>
           <NavIcons />
         </div>
 
-        <div className="md:hidden relative">
+        <div className="lg:hidden relative">
           <button
             type="button"
             aria-expanded={mobileMenuOpen}

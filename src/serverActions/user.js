@@ -1,266 +1,237 @@
 "use server";
-
 import { connectDb } from "../../config/db.js";
 import User from "../../models/User.js";
 import Session from "../../models/Session.js";
 import Cart from "../../models/Cart.js";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
+async function clerkUser(expectedId) {
+  const { userId } = await auth();
+  if (!userId) return null;
+  if (expectedId && userId !== expectedId) return null;
+  const u = await currentUser();
+  if (!u || u.id !== userId) return null;
+  return u;
+}
+
+async function saveClerkUser(c) {
+  const emailObj =
+    c.emailAddresses?.find((e) => e.id === c.primaryEmailAddressId) ||
+    c.emailAddresses?.[0];
+  const email = emailObj?.emailAddress || `${c.id}@users.clerk.dev`;
+
+  const fullName =
+    (c.fullName && String(c.fullName).trim()) ||
+    [c.firstName, c.lastName].filter(Boolean).join(" ").trim() ||
+    (c.username || "").trim() ||
+    email.split("@")[0] ||
+    "User";
+
+  const phone =
+    c.phoneNumbers?.find((p) => p.id === c.primaryPhoneNumberId)?.phoneNumber ||
+    c.phoneNumbers?.[0]?.phoneNumber ||
+    "";
+
+  const birthday = c.birthday != null ? String(c.birthday) : "";
+
+  await User.findOneAndUpdate(
+    { _id: c.id },
+    {
+      $set: {
+        name: fullName,
+        fullName,
+        firstName: c.firstName || "",
+        lastName: c.lastName || "",
+        username: c.username || "",
+        email,
+        imageUrl: c.imageUrl || "",
+        birthday,
+        phone,
+      },
+      $setOnInsert: { _id: c.id, role: "Customer" },
+    },
+    { upsert: true }
+  );
+}
+
+async function validSession(session, clerkId) {
+  if (!session || session.userId !== clerkId) return false;
+  if (!session.isActive) return false;
+  if (new Date() > session.expiresAt) {
+    session.isActive = false;
+    await session.save();
+    return false;
+  }
+  return true;
+}
+
 export async function ensureSessionForUser(userId) {
   try {
-    if (!userId) {
-      return null;
-    }
-
+    const c = await clerkUser(userId);
+    if (!c) return null;
     await connectDb();
-
-    // Check if user has an active, non-expired session
-    const existingSession = await Session.findOne({
+    const existing = await Session.findOne({
       userId,
       isActive: true,
-      expiresAt: { $gt: new Date() }, // Not expired
+      expiresAt: { $gt: new Date() },
     });
-
-    if (existingSession) {
-      console.log(`✅ Active session found for user ${userId}`);
-      return existingSession;
-    }
-
-    // No active session found, create a new one
-    const secret = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days
-
-    const newSession = await Session.create({
+    if (existing) return existing;
+    return Session.create({
       userId,
-      secret,
-      expiresAt,
+      secret: crypto.randomBytes(32).toString("hex"),
+      expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       isActive: true,
     });
-
-    console.log(`✅ New session created for user ${userId}`);
-    return newSession;
-  } catch (error) {
-    console.error("Error ensuring session for user:", error);
+  } catch (e) {
+    console.error(e);
     return null;
   }
 }
 
 export const getUser = async (sessionId) => {
   try {
-    if (!sessionId) {
-      console.warn("⚠️ No sessionId provided to getUser");
-      return { success: false, message: "Session ID is required" };
-    }
+    if (!sessionId) return { success: false, message: "no session id" };
+    const c = await clerkUser(null);
+    if (!c) return { success: false, message: "sign in" };
 
-    // Connect to database
     await connectDb();
-
-    // 1. Get session from sessionId
     const session = await Session.findById(sessionId);
-
-    if (!session) {
-      return { success: false, message: "Session not found" };
+    if (!(await validSession(session, c.id))) {
+      return { success: false, message: "bad session" };
     }
 
-    // Check if session is active
-    if (!session.isActive) {
-      return { success: false, message: "Session is not active" };
-    }
+    await saveClerkUser(c);
+    const user = await User.findById(session.userId).lean();
+    if (!user) return { success: false, message: "no user" };
 
-    // Check if session is expired
-    if (new Date() > session.expiresAt) {
-      // Mark session as inactive
-      session.isActive = false;
-      await session.save();
-      return { success: false, message: "Session expired" };
-    }
-
-    // 2. Get userId from session
-    const userId = session.userId;
-
-    if (!userId) {
-      return { success: false, message: "User ID not found in session" };
-    }
-
-    // 3. Get user by userId
-    const user = await User.findById(userId).lean();
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
-
-    // 4. Get cart for the user
     let cart = null;
-    if (user.Cart) {
-      // If user has a Cart reference, get it
-      cart = await Cart.findById(user.Cart).lean();
-    } else {
-      // If no Cart reference, try to find cart by userId
-      cart = await Cart.findOne({ userId: userId }).lean();
-    }
+    if (user.Cart) cart = await Cart.findById(user.Cart).lean();
+    else cart = await Cart.findOne({ userId: user._id }).lean();
 
-    // 5. Return user with cart
     return {
       success: true,
       user: {
         _id: user._id,
         name: user.name,
+        fullName: user.fullName,
         email: user.email,
         imageUrl: user.imageUrl,
+        birthday: user.birthday,
+        phone: user.phone,
       },
-      cart: cart ? {
-        _id: cart._id,
-        userId: cart.userId,
-        items: cart.items || [],
-        totalPrice: cart.totalPrice || 0,
-        createdAt: cart.createdAt,
-        updatedAt: cart.updatedAt,
-      } : null,
+      cart: cart
+        ? {
+            _id: cart._id,
+            userId: cart.userId,
+            items: cart.items || [],
+            totalPrice: cart.totalPrice || 0,
+            createdAt: cart.createdAt,
+            updatedAt: cart.updatedAt,
+          }
+        : null,
     };
-  } catch (error) {
-    console.error("Error getting user:", error);
-    return { success: false, message: error.message };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: e.message };
   }
 };
 
 export async function ensureSessionOnLogin(userId) {
   try {
-    if (!userId) {
-      return { success: false, message: "User ID is required" };
-    }
+    if (!userId) return { success: false, message: "no id" };
+    const c = await clerkUser(userId);
+    if (!c) return { success: false, message: "sign in" };
 
-    try {
-      const { userId: authenticatedUserId } = await auth();
-      if (authenticatedUserId && userId !== authenticatedUserId) {
-        return { success: false, message: "User ID mismatch - security violation" };
-      }
-    } catch (authError) {
-      console.warn("⚠️ Could not verify auth server-side, trusting client userId:", authError.message);
-    }
+    await connectDb();
+    await saveClerkUser(c);
 
     const session = await ensureSessionForUser(userId);
+    if (!session?._id) return { success: false, message: "no session" };
 
-    if (session) {
-      const sessionIdStr = session._id ? String(session._id) : null;
-      
-      if (!sessionIdStr) {
-        return { success: false, message: "Session ID is missing" };
-      }
-
-      console.log("✅ Session created/ensured - ID:", sessionIdStr, "Type:", typeof sessionIdStr);
-      
-      return { 
-        success: true, 
-        message: "Session ensured", 
-        sessionId: sessionIdStr,
-        secret: session.secret,
-        expiresAt: session.expiresAt.toISOString()
-      };
-    }
-
-    return { success: false, message: "Failed to create session" };
-  } catch (error) {
-    console.error("Error ensuring session on login:", error);
-    return { success: false, message: error.message };
+    return {
+      success: true,
+      sessionId: String(session._id),
+      secret: session.secret,
+      expiresAt: session.expiresAt.toISOString(),
+    };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: e.message };
   }
 }
 
 export async function getUserBySessionId(sessionId) {
   try {
-    if (!sessionId) {
-      return { success: false, message: "Session ID is required" };
-    }
+    if (!sessionId) return { success: false, message: "no session id" };
+    const c = await clerkUser(null);
+    if (!c) return { success: false, message: "sign in" };
 
     await connectDb();
-
-    // Get session by ID
     const session = await Session.findById(sessionId);
-
-    if (!session) {
-      return { success: false, message: "Session not found" };
+    if (!(await validSession(session, c.id))) {
+      return { success: false, message: "bad session" };
     }
 
-    // Check if session is active
-    if (!session.isActive) {
-      return { success: false, message: "Session is not active" };
-    }
-
-    // Check if session is expired
-    if (new Date() > session.expiresAt) {
-      // Mark session as inactive
-      session.isActive = false;
-      await session.save();
-      return { success: false, message: "Session expired" };
-    }
-
-    // Get user by userId from session
-    const user = await User.findById(session.userId);
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
+    await saveClerkUser(c);
+    const user = await User.findById(session.userId)
+    console.log("user", user);
+    if (!user) return { success: false, message: "no user" };
 
     return {
       success: true,
       user: {
         _id: user._id,
         name: user.name,
+        fullName: user.fullName,
+        role: user.role,
         email: user.email,
         imageUrl: user.imageUrl,
+        birthday: user.birthday,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
       },
     };
-  } catch (error) {
-    console.error("Error getting user by session ID:", error);
-    return { success: false, message: error.message };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: e.message };
   }
 }
 
 export async function validateSession(secret) {
   try {
-    if (!secret) {
-      return { success: false, message: "Session secret is required" };
-    }
+    if (!secret) return { success: false, message: "no secret" };
+    const c = await clerkUser(null);
+    if (!c) return { success: false, message: "sign in" };
 
     await connectDb();
-
-    const session = await Session.findOne({
-      secret,
-      isActive: true,
-    });
-
-    if (!session) {
-      return { success: false, message: "Session not found" };
+    const session = await Session.findOne({ secret, isActive: true });
+    if (!(await validSession(session, c.id))) {
+      return { success: false, message: "bad session" };
     }
-
-    // Check if session is expired
-    if (new Date() > session.expiresAt) {
-      // Mark session as inactive
-      session.isActive = false;
-      await session.save();
-      return { success: false, message: "Session expired" };
-    }
-
-    return { 
-      success: true, 
+    return {
+      success: true,
       session: {
         _id: session._id,
         userId: session.userId,
         secret: session.secret,
         expiresAt: session.expiresAt.toISOString(),
-        isActive: session.isActive
-      }
+        isActive: session.isActive,
+      },
     };
-  } catch (error) {
-    console.error("Error validating session:", error);
-    return { success: false, message: error.message };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: e.message };
   }
 }
 
 const secretKey = process.env.JWT_SECRET || "project-urban-buy";
 
 export const generateToken = async (userId) => {
+  const c = await clerkUser(userId);
+  if (!c) throw new Error("sign in");
   return jwt.sign({ id: userId }, secretKey, { expiresIn: "3d" });
 };
-

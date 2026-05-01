@@ -75,8 +75,8 @@ const CartPage = () => {
           <p className="text-sm text-gray-600">*Automatic discounts visible in checkout*</p>
         </div>
 
-        {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 pb-4 border-b-2 border-gray-900 mb-6">
+        {/* Table Header — desktop only */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-4 pb-4 border-b-2 border-gray-900 mb-6">
           <div className="col-span-6">
             <span className="text-sm font-semibold text-gray-900 uppercase tracking-wide">PRODUCT</span>
           </div>
@@ -105,12 +105,15 @@ const CartPage = () => {
             }
 
             return (
-              <div key={index} className="grid grid-cols-12 gap-4 items-start">
-                {/* PRODUCT Column */}
-                <div className="col-span-6 flex gap-4">
+              <div
+                key={index}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:items-start"
+              >
+                {/* PRODUCT */}
+                <div className="min-w-0 lg:col-span-6 flex gap-3 sm:gap-4">
                   <Link
                     href={productSlug ? `/${productSlug}` : "#"}
-                    className="flex-shrink-0 w-24 h-24 rounded overflow-hidden bg-gray-100"
+                    className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded overflow-hidden bg-gray-100"
                   >
                     <Image
                       src={productImage}
@@ -121,28 +124,27 @@ const CartPage = () => {
                     />
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <Link
-                      href={productSlug ? `/${productSlug}` : "#"}
-                      className="block"
-                    >
-                      <h3 className="text-base font-semibold text-gray-900 mb-1 hover:text-gray-700 transition-colors">
+                    <Link href={productSlug ? `/${productSlug}` : "#"} className="">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 hover:text-gray-700 transition-colors leading-snug">
                         {productTitle.toUpperCase()}
                       </h3>
                     </Link>
                     <p className="text-sm font-semibold text-gray-900 mb-2">
                       ${unitPrice > 0 ? unitPrice.toFixed(2) : "0.00"}
                     </p>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-gray-600 flex flex-wrap gap-x-1 gap-y-0.5">
                       <span>Size: {item.size}</span>
-                      <span className="mx-2">•</span>
+                      <span className="text-gray-400" aria-hidden>
+                        •
+                      </span>
                       <span>Color: {item.color}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* QUANTITY Column */}
-                <div className="col-span-3">
-                  <div className="flex flex-col items-center gap-3">
+                {/* Mobile: qty + line total row; lg: children participate in grid via contents */}
+                <div className="flex justify-between items-end gap-4 min-w-0 lg:contents">
+                  <div className="flex flex-col items-start gap-3 lg:col-span-3 lg:flex lg:items-center">
                     <QuantitySelector
                       defaultQuantity={item.quantity}
                       variant="compact"
@@ -152,6 +154,7 @@ const CartPage = () => {
                       }}
                     />
                     <button
+                      type="button"
                       onClick={() => removeItem(index)}
                       className="text-xs text-gray-600 hover:text-red-600 transition-colors underline"
                       aria-label="Remove item"
@@ -159,13 +162,14 @@ const CartPage = () => {
                       Remove
                     </button>
                   </div>
-                </div>
-
-                {/* TOTAL Column */}
-                <div className="col-span-3 text-right">
-                  <p className="text-base font-semibold text-gray-900">
-                    ${itemTotal > 0 ? itemTotal.toFixed(2) : "0.00"}
-                  </p>
+                  <div className="shrink-0 text-right lg:col-span-3">
+                    <p className="text-xs uppercase tracking-wide text-gray-500 mb-0.5 lg:hidden">
+                      Total
+                    </p>
+                    <p className="text-base font-semibold text-gray-900 tabular-nums">
+                      ${itemTotal > 0 ? itemTotal.toFixed(2) : "0.00"}
+                    </p>
+                  </div>
                 </div>
               </div>
             );

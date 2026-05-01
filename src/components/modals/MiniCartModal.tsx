@@ -314,7 +314,7 @@ const MiniCartModal = ({
 
       {/* Modal Content - Full height sidebar on right */}
       <div
-        className={`fixed top-0 right-0 h-screen ${width} ${maxWidth} z-[9999] bg-white flex flex-col shadow-2xl transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-screen w-full max-w-full md:w-[40%] md:max-w-md z-[9999] bg-white flex flex-col shadow-2xl transition-transform duration-300 ${
           shouldAnimate ? "translate-x-0" : "translate-x-full"
         }`}
         onClick={(e) => e.stopPropagation()}
