@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -17,7 +17,9 @@ type CollectionsContentProps = {
 };
 
 const CollectionsContent = ({ categories }: CollectionsContentProps) => {
-  const { products, category, setCategory, loading, error, refreshProducts } = useCollection();
+  const { products, category, setCategory, loading, error, refreshProducts, deleteProduct } =
+    useCollection();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -62,6 +64,7 @@ const CollectionsContent = ({ categories }: CollectionsContentProps) => {
         { key: "price", label: "Price" },
         { key: "action", label: "Action" },
         { key: "edit", label: "Edit" },
+        { key: "delete", label: "Delete" },
       ]}
       rows={!loading && !isPending && !error ? products : []}
       searchPlaceholder="Search by product name"
@@ -70,8 +73,9 @@ const CollectionsContent = ({ categories }: CollectionsContentProps) => {
       rightControls={
         <select
           className="h-10 w-full sm:w-56 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:border-indigo-300"
-          value={selectedCategory}
+          value={selectedCategory} 
           onChange={(event) => handleCategoryChange(event.target.value)}
+          suppressHydrationWarning
         >
           {categoryOptions.map((item) => (
             <option key={item.key || "all"} value={item.key}>
@@ -120,6 +124,25 @@ const CollectionsContent = ({ categories }: CollectionsContentProps) => {
             >
               Edit
             </Link>
+          </td>
+          <td className="px-5 py-4">
+            <button
+            suppressHydrationWarning
+              type="button"
+              disabled={deletingId === product.uniqueId}
+              onClick={async () => {
+                if (!window.confirm("Delete this product? This cannot be undone.")) return;
+                setDeletingId(product.uniqueId);
+                try {
+                  await deleteProduct(product.uniqueId);
+                } finally {
+                  setDeletingId(null);
+                }
+              }}
+              className="inline-flex items-center rounded-md border border-red-300 px-3 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {deletingId === product.uniqueId ? "Deleting…" : "Delete"}
+            </button>
           </td>
         </tr>
       )}

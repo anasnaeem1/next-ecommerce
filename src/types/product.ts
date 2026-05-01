@@ -30,6 +30,7 @@ export type ProductType = {
   basePrice: number;
   offerPrice?: number;
   totalStock: number;
+  featured?: boolean;
   variants: VariantType[];
   createdAt?: Date;
   updatedAt?: Date;

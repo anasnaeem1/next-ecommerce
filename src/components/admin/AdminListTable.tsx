@@ -1,5 +1,4 @@
 "use client";
-
 import { ReactNode, useMemo, useState } from "react";
 
 export type AdminTableColumn = {

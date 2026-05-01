@@ -1,7 +1,7 @@
 "use server";
-
 import { connectDb } from "../../../config/db.js";
 import Product from "../../../models/Product.js";
+import {deleteImageFromCloudinary} from "../../serverActions/cloudinary/deleteFromcloudinary.js"
 
 const stringifyId = (value, fallback) =>
   value?.toString?.() ?? fallback ?? `${Date.now()}-${Math.random()}`;
@@ -119,6 +119,31 @@ export const getProductDetails = async (slug) => {
     };
   } catch (error) {
     console.error("Error getting product details:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+export const deleteProduct = async (uniqueId) => {
+  try {
+    const product = await Product.findOne({ uniqueId })
+
+    for (const image of product?.images || []) {
+      const deletedImage = await deleteImageFromCloudinary(image);
+      console.log(deletedImage)
+      if(deletedImage.result == 'not found'){
+        return { success: false, message: "Image not found" };
+      }
+    }
+
+    await connectDb();
+    const deleted = await Product.findOneAndDelete({ uniqueId });
+
+    if (!deleted) {
+      return { success: false, message: "Product not found" };
+    }
+    return { success: true, message: "Product deleted" };
+  } catch (error) {
+    console.error("Error deleting product:", error);
     return { success: false, message: error.message };
   }
 };

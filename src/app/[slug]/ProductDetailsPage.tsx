@@ -120,7 +120,7 @@ const ProductDetailsPage = () => {
           <div className="flex flex-col space-y-8">
             {/* Title & Description */}
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-5xl font-light text-gray-900 leading-tight tracking-tight">
+              <h1 className="text-2xl lg:text-5xl font-light text-gray-900 leading-tight tracking-tight">
                 {productDetails?.productTitle}
               </h1>
               <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
@@ -201,9 +201,9 @@ const ProductDetailsPage = () => {
         </div>
 
         {/* Reviews Section */}
-        <div className="border-t border-gray-200 pt-12">
+        {/* <div className="border-t border-gray-200 pt-12">
           {productId && slug && <Reviews productId={productId} productSlug={slug}/>}
-        </div>
+        </div> */}
       </div>
 
     </form>

@@ -1,65 +1,95 @@
 "use client";
 import React, { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import FilesUploader from "./filesUploader";
 import CategorySelector from "./CategorySelector";
+import { AddProduct } from "@/serverActions/product";
+import { uploadImagesToCloudinary } from "../serverActions/cloudinary/uploadToCloudinary";
+import { useRouter } from "next/navigation";
 
 const AddProductForm = () => {
   const [productAdded, setProductAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!selectedCategory) {
       alert("Please select a category");
       return;
     }
-    
+
     try {
       setIsProcessing(true);
       const formData = new FormData(e.currentTarget);
 
-      const productImage1 = formData.get("productImage1") as File;
-      const productImage2 = formData.get("productImage2") as File;
-      const productImage3 = formData.get("productImage3") as File;
-      const productImage4 = formData.get("productImage4") as File;
+      const imageFiles: File[] = [];
+      const image1 = formData.get("productImage1");
+      const image2 = formData.get("productImage2");
+      const image3 = formData.get("productImage3");
+      const image4 = formData.get("productImage4");
 
-      const imageFiles = [
-        productImage1,
-        productImage2,
-        productImage3,
-        productImage4,
-      ];
+      if (image1 instanceof File && image1.size > 0) imageFiles.push(image1);
+      if (image2 instanceof File && image2.size > 0) imageFiles.push(image2);
+      if (image3 instanceof File && image3.size > 0) imageFiles.push(image3);
+      if (image4 instanceof File && image4.size > 0) imageFiles.push(image4);
 
-      const form = new FormData();
-      form.append("uniqueId", formData.get("uniqueId") as string);
-      form.append("productTitle", formData.get("productTitle") as string);
-      form.append("productDesc", formData.get("productDesc") as string);
-      form.append("category", selectedCategory || "");
-      form.append("basePrice", formData.get("price") as string);
-      form.append("offerPrice", formData.get("offerPrice") as string);
-      form.append("totalStock", formData.get("totalStock") as string);
-      form.append("variants", JSON.stringify([]));
+      const uploadResult = await uploadImagesToCloudinary(imageFiles);
+      if (!uploadResult.success) {
+        alert(uploadResult.error ?? "Image upload failed");
+        return;
+      }
+      const uploadedImageUrls = uploadResult.urls;
 
-      imageFiles.forEach((img, index) => {
-        if (img && img instanceof File && img.size > 0) {
-          form.append("images", img, `image${index + 1}.jpg`);
+      const rawVariants = formData.get("variants");
+      let parsedVariants: unknown[] = [];
+      if (
+        rawVariants != null &&
+        typeof rawVariants === "string" &&
+        rawVariants.trim() !== ""
+      ) {
+        try {
+          const parsed = JSON.parse(rawVariants);
+          parsedVariants = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          parsedVariants = [];
         }
-      });
-      const response = await axios.post("/api/add-product", form);
-      if (response?.data) {
-        setProductAdded(true);
-
-        setTimeout(() => {
-          setProductAdded(false);
-        }, 3000); // 3 seconds
       }
 
-      setIsProcessing(false);
+      const product = {
+        uniqueId: formData.get("uniqueId") as string,
+        productTitle: formData.get("productTitle") as string,
+        productDesc: formData.get("productDesc") as string,
+        category: selectedCategory,
+        price: Number(formData.get("price")) as number,
+        offerPrice: Number(formData.get("offerPrice")) as number,
+        totalStock: Number(formData.get("totalStock")) as number,
+        variants: parsedVariants,
+        images: uploadedImageUrls,
+      };
+
+      const response = await AddProduct(product);
+      if (response?.success) {
+        setProductAdded(true);
+        const productUniqueId = response.product.uniqueId;
+        router.push(`/admin/inventory/${productUniqueId}`);
+        setTimeout(() => {
+          setProductAdded(false);
+        }, 3000);
+      } else {
+        console.error(response?.message);
+        alert(
+          typeof response?.message === "string"
+            ? response.message
+            : "Failed to save product"
+        );
+      }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -177,11 +207,10 @@ const AddProductForm = () => {
           type="submit"
           disabled={isProcessing}
           className={`relative shadow-lg inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-medium transition-all duration-300
-    ${
-      isProcessing || productAdded
-        ? "bg-gray-400"
-        : "bg-gray-500 hover:bg-gray-600"
-    }
+    ${isProcessing || productAdded
+              ? "bg-gray-400"
+              : "bg-gray-500 hover:bg-gray-600"
+            }
     ${isProcessing ? "cursor-wait" : "cursor-pointer"}
     shadow-md disabled:opacity-70 disabled:cursor-not-allowed
   `}

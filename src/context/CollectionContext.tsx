@@ -1,8 +1,7 @@
 "use client";
-
 import { createContext, useCallback, useContext, useState, ReactNode } from "react";
 import { ProductType } from "@/types";
-import { getProducts } from "@/serverActions/Product/productActions";
+import { getProducts, deleteProduct as removeProductOnServer } from "@/serverActions/Product/productActions";
 
 interface CollectionContextType {
   products: ProductType[];
@@ -11,6 +10,7 @@ interface CollectionContextType {
   error: string | null;
   refreshProducts: (nextCategory?: string | null) => Promise<void>;
   setCategory: (value: string | null) => void;
+  deleteProduct: (uniqueId: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
@@ -60,6 +60,17 @@ export function CollectionProvider({
     [category]
   );
 
+  const deleteProduct = useCallback(async (uniqueId: string) => {
+    setError(null);
+    const result = await removeProductOnServer(uniqueId);
+    if (result?.success) {
+      setProducts((prev) => prev.filter((p) => p.uniqueId !== uniqueId));
+    } else {
+      setError(result?.message || "Failed to delete product");
+    }
+    return result;
+  }, []);
+
   return (
     <CollectionContext.Provider
       value={{
@@ -69,6 +80,7 @@ export function CollectionProvider({
         error,
         refreshProducts,
         setCategory,
+        deleteProduct,
       }}
     >
       {children}

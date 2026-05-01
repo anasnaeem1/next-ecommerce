@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useContext } from 'react';
 import VariantsTable from './VariantsTable';
-import ProductImagesEditor from './ProductImagesEditor';
+import FilesUploader from './filesUploader';
 import { ProductContext } from '../../context/ProductContext';
 import {
   handleSaveVariants,
@@ -10,122 +10,76 @@ import {
   handleCancelEdit,
   handleImagesChange,
 } from '../serverActions/Inventory/inventoryActions';
+import { ProductType, VariantType } from '@/types';
 
 interface InventoryProductDetailsProps {
-  product?: {
-    productId?: string;
-    _id?: string;
-    uniqueId?: string;
-    productTitle?: string;
-    productDesc?: string;
-    basePrice?: number;
-    offerPrice?: number;
-    images?: string[];
-    variants?: Array<{
-      color: string;
-      colorCode?: string;
-      sizes: Array<{
-        size: string;
-        stock: number;
-        sku?: string;
-        price?: number;
-      }>;
-    }>;
-  };
+  product?: ProductType;
+
 }
 
+function mapVariantsForState(variants: VariantType[] | undefined) {
+  if (!variants?.length) return [];
+  return variants.map((variant) => ({
+    color: variant.color,
+    isDefault: variant.isDefault ?? false,
+    sizes: (variant.sizes || []).map((size) => ({
+      size: size.size,
+      stock: size.stock,
+      isDefault: size.isDefault ?? false,
+    })),
+  }));
+}
 
-// Safe hook that doesn't throw if context is not available
 function useProductSafe() {
-  const context = useContext(ProductContext);
-  return context || null;
+  return useContext(ProductContext) ?? null;
 }
-
+ 
 const InventoryProductDetails = ({ product: productProp }: InventoryProductDetailsProps = {}) => {
-  // Always call hooks first, before any conditional logic
   const productContext = useProductSafe();
   const product = productContext?.product || productProp;
-  
-  // Initialize all state hooks at the top
+
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [productSaveStatus, setProductSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Local state for variants - updated after successful save
-  const initialVariants = product?.variants?.map((variant: any) => ({
-    color: variant.color,
-    isDefault: variant.isDefault || false,
-    sizes: (variant.sizes || []).map((size: any) => ({
-      size: size.size,
-      stock: size.stock,
-      isDefault: size.isDefault || false,
-    }))
-  })) || [];
-  const [currentVariants, setCurrentVariants] = useState(initialVariants);
-  const currentVariantsRef = useRef(initialVariants);
-  
-  // Form state for editable fields - images can be string (URL) or File (new upload)
+  const [currentVariants, setCurrentVariants] = useState<any[]>([]);
+  const currentVariantsRef = useRef<any[]>([]);
+
   const [formData, setFormData] = useState({
     productTitle: product?.productTitle || '',
     productDesc: product?.productDesc || '',
     basePrice: product?.basePrice || 0,
     offerPrice: product?.offerPrice || 0,
-    images: product?.images || [] as (string | File)[],
+    images: product?.images || ([] as (string | File)[]),
+    featured: product?.featured === true,
   });
-  
+
   const [originalData, setOriginalData] = useState({
     productTitle: product?.productTitle || '',
     productDesc: product?.productDesc || '',
     basePrice: product?.basePrice || 0,
     offerPrice: product?.offerPrice || 0,
-    images: product?.images || [] as string[],
+    images: product?.images || ([] as string[]),
+    featured: product?.featured === true,
   });
 
-  // Update formData when product changes (from context or prop)
   useEffect(() => {
     if (!product) return;
-    
-    const newFormData = {
+    const nextForm = {
       productTitle: product.productTitle || '',
       productDesc: product.productDesc || '',
       basePrice: product.basePrice || 0,
       offerPrice: product.offerPrice || 0,
       images: product.images || [],
+      featured: product.featured === true,
     };
-    setFormData(newFormData);
-    setOriginalData(newFormData);
-  }, [product]); // Update when product changes
-
-  // Update currentVariants when product prop changes (only if content is different)
-  useEffect(() => {
-    if (!product) return;
-    
-    const newVariants = product.variants?.map((variant: any) => ({
-      color: variant.color,
-      isDefault: variant.isDefault || false,
-      sizes: (variant.sizes || []).map((size: any) => ({
-        size: size.size,
-        stock: size.stock,
-        isDefault: size.isDefault || false,
-      }))
-    })) || [];
-    
-    // Only update if content is actually different (deep comparison)
-    const currentStr = JSON.stringify(currentVariantsRef.current);
-    const newStr = JSON.stringify(newVariants);
-    if (currentStr !== newStr) {
-      setCurrentVariants(newVariants);
-      currentVariantsRef.current = newVariants;
-    }
+    setFormData(nextForm);
+    setOriginalData(nextForm);
+    const v = mapVariantsForState(product.variants);
+    setCurrentVariants(v);
+    currentVariantsRef.current = v;
   }, [product]);
-  
-  // Keep ref in sync with state
-  useEffect(() => {
-    currentVariantsRef.current = currentVariants;
-  }, [currentVariants]);
-  
-  // Handle loading/error states - after all hooks
+
   if (!product) {
     if (productContext?.loading) {
       return (
@@ -154,43 +108,39 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
     );
   }
 
-  // Check if there are unsaved changes (including image changes)
-  const hasImageChanges = formData.images.some((img, idx) => {
-    const originalImg = originalData.images[idx];
-    if (img instanceof File) return true; // New file uploaded
-    if (img !== originalImg) return true; // URL changed
-    return false;
-  }) || formData.images.length !== originalData.images.length;
+  const uniqueId = product.uniqueId || productContext?.slug || '';
 
-  const hasOtherChanges = 
+  const hasImageChanges =
+    formData.images.length !== originalData.images.length ||
+    formData.images.some(
+      (img, idx) =>
+        img !== originalData.images[idx] ||
+        Object.prototype.toString.call(img) === "[object File]"
+    );
+
+  const hasOtherChanges =
     formData.productTitle !== originalData.productTitle ||
     formData.productDesc !== originalData.productDesc ||
     formData.basePrice !== originalData.basePrice ||
-    formData.offerPrice !== originalData.offerPrice;
+    formData.offerPrice !== originalData.offerPrice ||
+    formData.featured !== originalData.featured;
 
   const hasUnsavedChanges = hasImageChanges || hasOtherChanges;
 
-  const onSaveVariants = async (variants: any) => {
-    
-    const productId = (product as any).uniqueId || productContext?.slug || '';
-    return await handleSaveVariants({
-      variants,
-      productId: productId || '',
+  const onSaveVariants = (newVariants: any[]) =>
+    handleSaveVariants({
+      newVariants,
+      uniqueId,
       setSaveStatus,
       setIsSaving,
       setCurrentVariants,
       currentVariantsRef,
       refreshProduct: productContext?.refreshProduct,
     });
-  };
 
-  const onSaveProduct = async () => {
-    const productId = (product as any)._id || (product as any).productId || productContext?.productId;
-    const productSlug = (product as any).uniqueId || productContext?.slug;
-    
-    await handleSaveProduct({
-      productId: productId || '',
-      productSlug: productSlug || '',
+  const onSaveProduct = () =>
+    handleSaveProduct({
+      uniqueId,
       formData,
       originalData,
       setProductSaveStatus,
@@ -200,27 +150,50 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
       setIsEditing,
       refreshProduct: productContext?.refreshProduct,
     });
-  };
 
   const onCancelEdit = () => {
-    handleCancelEdit({
-      originalData,
-      setFormData,
-      setIsEditing,
-    });
+    handleCancelEdit({ originalData, setFormData, setIsEditing });
   };
 
   const onImagesChange = (images: (string | File)[]) => {
-    handleImagesChange({
-      formData,
-      images,
-      setFormData,
-    });
+    handleImagesChange({ formData, images, setFormData });
+  };
+
+  const ProductSaveStatusBadge = ({
+    status,
+  }: {
+    status: "idle" | "success" | "error";
+  }) => {
+    if (status === "success") {
+      return (
+        <div className="mb-4 p-3 bg-white border border-green-300 text-green-700 rounded-md text-sm">
+          ✓ Variants saved successfully!
+        </div>
+      );
+    }
+  
+    if (status === "error") {
+      return (
+        <div className="mb-4 p-3 bg-white border border-red-300 text-red-700 rounded-md text-sm">
+          <div className="flex items-start gap-2">
+            <span>✗</span>
+            <div>
+              <p className="font-medium">Failed to save variants.</p>
+              <p className="text-xs text-red-600 mt-1">
+                Please check the console for details and ensure all validation
+                rules are met.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  
+    return null;
   };
 
   return (
     <div className="w-full border border-slate-300 rounded-md bg-slate-50 p-5 md:p-6">
-      {/* Top Action Bar */}
       <div className="mb-5 flex items-center justify-between border border-slate-300 rounded-md bg-white px-4 py-3">
         <div className="flex items-center gap-2">
           {hasUnsavedChanges && (
@@ -228,16 +201,8 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
               Unsaved changes
             </span>
           )}
-          {productSaveStatus === 'success' && (
-            <span className="text-xs text-green-700 bg-white border border-green-300 px-3 py-1 rounded-md font-semibold">
-              ✓ Product updated successfully!
-            </span>
-          )}
-          {productSaveStatus === 'error' && (
-            <span className="text-xs text-red-700 bg-white border border-red-300 px-3 py-1 rounded-md font-semibold">
-              ✗ Failed to update product. Please try again.
-            </span>
-          )}
+
+          <ProductSaveStatusBadge status={productSaveStatus} />
         </div>
         <div className="flex items-center gap-2">
           {!isEditing && (
@@ -286,8 +251,7 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
           )}
         </div>
       </div>
-      
-      {/* Product Title - Compact Style */}
+
       <div className="mb-5 border border-slate-300 rounded-md bg-white">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Product Title</h3>
@@ -308,22 +272,19 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
         </div>
       </div>
 
-      {/* Product Photo Gallery - Using separate component */}
       <div className="mb-5 border border-slate-300 rounded-md bg-white">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Product Images</h3>
         </div>
         <div className="p-5 md:p-6">
-          <ProductImagesEditor
-            images={formData.images}
+          <FilesUploader
+            existingImages={formData.images.filter((img): img is string => typeof img === "string")}
             isEditing={isEditing}
             onImagesChange={onImagesChange}
-            productTitle={product.productTitle}
           />
         </div>
       </div>
 
-      {/* Product Description - Compact Style */}
       <div className="mb-5 border border-slate-300 rounded-md bg-white">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Description</h3>
@@ -344,7 +305,6 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
         </div>
       </div>
 
-      {/* Pricing Section - Compact Style */}
       <div className="mb-5 border border-slate-300 rounded-md bg-white">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Pricing</h3>
@@ -374,13 +334,29 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
                 step="0.01"
               />
             </div>
+
+            <div className="flex flex-col gap-2 min-w-[220px]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Featured Product
+              </label>
+              <select
+                value={String(formData.featured)}
+                onChange={(e) =>
+                  setFormData({ ...formData, featured: e.target.value === "true" })
+                }
+                className="text-base font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:border-indigo-300"
+              >
+                <option value="true">Featured</option>
+                <option value="false">Not Featured</option>
+              </select>
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-4 p-4 rounded-md border border-gray-300 bg-white">
             <div className="text-2xl font-semibold text-gray-900">
               ${formData.offerPrice || formData.basePrice || 0}
             </div>
-            {formData.offerPrice && formData.offerPrice > 0 && (
+            {formData.offerPrice > 0 && (
               <>
                 <div className="text-lg text-gray-400 line-through">
                   ${formData.basePrice || 0}
@@ -395,41 +371,25 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
         </div>
       </div>
 
-      {/* Variants Management Section */}
       <div className="mb-2 border border-slate-300 rounded-md bg-white">
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Variants</h3>
         </div>
         <div className="p-5 md:p-6">
-        {saveStatus === 'success' && (
-          <div className="mb-4 p-3 bg-white border border-green-300 text-green-700 rounded-md text-sm">
-            ✓ Variants saved successfully!
-          </div>
-        )}
-        {saveStatus === 'error' && (
-          <div className="mb-4 p-3 bg-white border border-red-300 text-red-700 rounded-md text-sm">
-            <div className="flex items-start gap-2">
-              <span>✗</span>
-              <div>
-                <p className="font-medium">Failed to save variants.</p>
-                <p className="text-xs text-red-600 mt-1">Please check the console for details and ensure all validation rules are met.</p>
-              </div>
-            </div>
-          </div>
-        )}
+
+          <ProductSaveStatusBadge
+            status={saveStatus}
+          />
+       
         <VariantsTable
-        isSaving={isSaving}
-        saveStatus={saveStatus}
-          productId={(product as any).uniqueId || productContext?.slug || ''}
+          isSaving={isSaving}
+          saveStatus={saveStatus}
+          productId={uniqueId}
           initialVariants={currentVariants}
           onVariantsChange={onSaveVariants}
-          onTotalStockChange={(totalStock) => {
-            console.log('Total stock updated:', totalStock);
-          }}
         />
         </div>
       </div>
-
     </div>
   );
 };

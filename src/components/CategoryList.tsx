@@ -49,6 +49,7 @@ const CategoryList = () => {
     );
   }
 
+
   return (
     <div className="my-12 scroll-hide overflow-x-auto">
       <div className="flex flex-nowrap gap-6 px-4">
@@ -64,7 +65,7 @@ const CategoryList = () => {
             >
               <div className="relative w-full aspect-[3/4] bg-gray-100">
                 <Image
-                  src={defaultImage}
+                  src={category.Image || defaultImage}
                   alt={category.label}
                   fill
                   sizes="25vw"

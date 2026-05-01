@@ -54,7 +54,6 @@ export const POST = async (req) => {
       console.error("❌ Failed to parse variants:", e);
     }
 
-    // If no variants provided, create a default variant with color "default" and size "small"
     let calculatedTotalStock = Number(formData.get("totalStock")) || 1;
     if (!parsedVariants || parsedVariants.length === 0) {
       const stock = calculatedTotalStock > 0 ? calculatedTotalStock : 1; // Ensure at least 1 stock

@@ -23,6 +23,7 @@ const Search = () => {
       </svg>
 
       <input
+      suppressHydrationWarning
         type="text"
         name="name"
         placeholder="Search..."

@@ -42,7 +42,7 @@ const Footer = () => {
     <div
       className={`${
         !showFooter ? "hidden" : "block"
-      } py-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 bg-gray-100 text-sm`}
+      } mt-20 py-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 bg-gray-100 text-sm`}
     >
       <div>
         {/* TOP */}
@@ -144,6 +144,7 @@ const Footer = () => {
             </p>
             <div className="flex items-center">
               <input
+              suppressHydrationWarning
                 type="email"
                 id="Email"
                 name="Email"
@@ -152,6 +153,7 @@ const Footer = () => {
                 className="min-h-[50px] max-w-[150px] px-4 text-black text-sm border border-[#5e4dcd] rounded-l-md bg-transparent focus:outline-none focus:border-[#3898EC]"
               />
               <input
+              suppressHydrationWarning
                 type="submit"
                 value="Join"
                 className="min-h-[50px] px-4 bg-[#5e4dcd] text-white text-sm rounded-r-md cursor-pointer transition-colors duration-300 hover:bg-[#5e5dcd] border-none"

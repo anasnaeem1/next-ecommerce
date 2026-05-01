@@ -115,6 +115,14 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
     variants: {
       type: [variantSchema],
       default: [],
@@ -181,8 +189,6 @@ const productSchema = new mongoose.Schema(
   { timestamps: true, minimize: false }
 );
 
-// Register Product model
-// Mongoose handles re-registration automatically if model already exists
 const Product = mongoose.models?.Product ?? mongoose.model("Product", productSchema);
 
 export default Product;

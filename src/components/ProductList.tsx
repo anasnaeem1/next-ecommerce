@@ -18,7 +18,7 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
         products.length > 0 &&
         products.map((product: ProductType) => (
           <Link
-            href={listPage ? `/${product.uniqueId}` : "/list"}
+            href={`/${product.uniqueId}`}
             key={product._id}
             className="w-full sm:w-[48%] lg:w-[23%] group"
           >
@@ -38,7 +38,7 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
                         src={product.images[1]}
                         alt={`${product.productTitle} — alternate view`}
                         fill
-                        className="absolute object-cover"
+                        className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-500 object-cover"
                         unoptimized
                       />
                     </>
@@ -72,7 +72,7 @@ const ProductList = ({ products, number, listPage }: ProductListProps) => {
                 {product.productDesc}
               </p>
 
-              <span className="inline-flex items-center justify-center text-sm text-gray-600 rounded-full max-w-[140px] h-10 w-full group-hover:text-[#F35C7A] transition-colors font-medium">
+              <span className="inline-flex items-center justify-center text-sm text-gray-600 rounded-full max-w-[140px] h-10 w-full hover:text-[#F35C7A] transition-colors font-medium">
                 Add to cart
               </span>
             </div>

@@ -44,7 +44,6 @@ export function ProductProvider({
   const initialProductRef = useRef(initialProduct);
   const hasInitializedRef = useRef(false);
 
-  // Refresh product data
   const refreshProduct = useCallback(async () => {
     const currentSlug = slug;
     if (!currentSlug) {
@@ -69,7 +68,6 @@ export function ProductProvider({
         setProduct(null);
       }
     } catch (err: any) {
-      console.error("Error refreshing product:", err);
       setError(err.message || "An error occurred while loading the product");
       setProduct(null);
     } finally {
@@ -77,7 +75,6 @@ export function ProductProvider({
     }
   }, [slug]);
 
-  // Initialize with initial product if provided
   useEffect(() => {
     if (!hasInitializedRef.current && initialProductRef.current) {
       setProduct(initialProductRef.current);

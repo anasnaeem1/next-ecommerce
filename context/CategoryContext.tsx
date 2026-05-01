@@ -12,6 +12,7 @@ type ParentCategory = {
   category: {
     [key: string]: ChildCategory;
   };
+  Image?: string;
 };
 
 type CategoryStructure = {

@@ -2,60 +2,100 @@
 
 import { connectDb } from "../../config/db.js";
 import axios from "axios";
-import mongoose from "mongoose";
+import Product from "../../models/Product.js";
+import { calculateTotalStock } from "../utils/variantCalculations";
 
 async function getProductModel() {
   await connectDb();
-  return mongoose.models.Product;
+  return Product;
 }
 
-export const addDummyProduct = async () => {
+function productForClient(doc) {
+  if (!doc) return doc;
+  const p = { ...doc };
+  if (p._id != null) p._id = String(p._id);
+  if (p.createdAt instanceof Date) p.createdAt = p.createdAt.toISOString();
+  if (p.updatedAt instanceof Date) p.updatedAt = p.updatedAt.toISOString();
+  return p;
+}
+
+export const getFeaturedProduct = async () => {
   try {
-    const Product = await getProaductModel();
-
-    const dummyProduct = new Product({
-      uniqueId: "DEMO-001",
-      productTitle: "Demo Sneakers",
-      productDesc: "Comfortable and stylish demo sneakers for testing.",
-      images: [
-        "https://via.placeholder.com/300x300.png?text=Demo+Image+1",
-        "https://via.placeholder.com/300x300.png?text=Demo+Image+2",
-      ],
-      category: "Footwear",
-      price: 120,
-      basePrice: 120,
-      offerPrice: 89.99,
-      totalStock: 50,
-      variants: [{
-        color: "Default",
-        colorCode: "#000000",
-        sizes: [{
-          size: "One Size",
-          stock: 50,
-          sku: "DEMO-001-DEFAULT",
-          price: 0
-        }]
-      }]
-    });
-
-    const savedProduct = await dummyProduct.save();
-
-    return { success: true, product: savedProduct };
+    const Product = await getProductModel();
+    const products = (await Product.find({ featured: true }).lean())
+    .map(productForClient);
+    return { success: true, products };
   } catch (error) {
     return { success: false, message: error.message };
   }
-};
+}
 
-export const AddProduct = async (product) => {
+export const getNewProducts = async () => {
   try {
-    console.log("you just send this product", product);
     const Product = await getProductModel();
+    const products = (await Product.find({})
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean()
+  ).map(productForClient);
+    return { success: true, products };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+}
 
-    const savingProduct = new Product(product);
+export const AddProduct = async (productData) => {
+  try {
+    const Product = await getProductModel();
+    const totalStock = Number(productData.totalStock) || 0;
+    const price = Number(productData.price) || 0;
+    const images = productData.images ?? productData.productImages;
+    if (!Array.isArray(images) || images.length === 0) {
+      return { success: false, message: "At least one image URL is required" };
+    }
 
+    let variants = productData.variants;
+    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+      const stock = totalStock > 0 ? totalStock : 1;
+      variants = [
+        {
+          color: "default",
+          colorCode: "#000000",
+          isDefault: true,
+          sizes: [
+            {
+              size: "One Size",
+              stock,
+              sku: "",
+              price: 0,
+              isDefault: true,
+            },
+          ],
+        },
+      ];
+    }
+
+    const doc = {
+      uniqueId: productData.uniqueId,
+      productTitle: productData.productTitle,
+      productDesc: productData.productDesc,
+      images,
+      category: productData.category,
+      price,
+      basePrice:
+        productData.basePrice != null ? Number(productData.basePrice) : price,
+      offerPrice: Number(productData.offerPrice) || 0,
+      totalStock: totalStock > 0 ? totalStock : 1,
+      variants,
+    };
+
+    const savingProduct = new Product(doc);
     const savedProduct = await savingProduct.save();
 
-    return { success: true, product: savedProduct };
+    return {
+      success: true,
+      product: productForClient(savedProduct.toObject({ flattenMaps: true })),
+    };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -64,8 +104,8 @@ export const AddProduct = async (product) => {
 export const getAllProducts = async () => {
   try {
     const Product = await getProductModel();
-    const products = await Product.find();
-    return { success: true, products: products };
+    const products = (await Product.find().lean()).map(productForClient);
+    return { success: true, products };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -80,30 +120,60 @@ export const getSingleProduct = async (slug) => {
   }
 };
 
-export const updateProduct = async (product) => {
+export const updateProduct = async (input) => {
   try {
-    const Product = await getProductModel();
-    
-    // Find the product by uniqueId since that's what we're using
-    const updatedProduct = await Product.findOneAndUpdate(
-      { uniqueId: product.uniqueId || product._id },
-      product,
-      { new: true }
-    ).lean();
-    
-    if (!updatedProduct) {
-      return { success: false, message: 'Product not found' };
+    const id = input?.id ?? input?.uniqueId;
+    if (!id) {
+      return { success: false, message: "id is required" };
     }
-    
-    // Serialize the product to ensure it's a plain object
-    // Don't return the full product object to avoid serialization issues
-    return { 
-      success: true, 
-      // Only return essential data, not the full MongoDB object
-      message: 'Product updated successfully'
-    };
+
+    const $set = Object.fromEntries(
+      Object.entries({
+        productTitle: input.title ?? input.productTitle,
+        productDesc: input.description ?? input.productDesc,
+        basePrice: input.basePrice,
+        offerPrice: input.offerPrice,
+        price: input.price,
+        featured: input.featured,
+        images: input.images,
+      }).filter(([, v]) => v !== undefined)
+    );
+    if ($set.basePrice != null) $set.price = $set.basePrice;
+    if ($set.price != null && $set.basePrice == null) $set.basePrice = $set.price;
+
+    const Product = await getProductModel();
+    const updated = await Product.findOneAndUpdate(
+      { uniqueId: id },
+      { $set },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!updated) {
+      return { success: false, message: "Product not found" };
+    }
+    return { success: true, message: "Product updated successfully" };
   } catch (error) {
-    console.error('Error updating product:', error);
+    return { success: false, message: error.message };
+  }
+};
+
+export const updateProductVariant = async ({ productId, variants }) => {
+  try {
+    if (!productId) {
+      return { success: false, message: "productId is required" };
+    }
+    const totalStock = calculateTotalStock(variants || []);
+    const Product = await getProductModel();
+    const updated = await Product.findOneAndUpdate(
+      { uniqueId: productId },
+      { $set: { variants: variants || [], totalStock } },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!updated) {
+      return { success: false, message: "Product not found" };
+    }
+    return { success: true, product: productForClient(updated) };
+  } catch (error) {
     return { success: false, message: error.message };
   }
 };

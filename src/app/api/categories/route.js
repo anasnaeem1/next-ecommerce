@@ -44,6 +44,7 @@ export const GET = async () => {
     categoryDoc.categories.forEach((parent) => {
       categoryStructure[parent.key] = {
         label: parent.label,
+        Image: parent.Image,
         category: {},
       };
       parent.children.forEach((child) => {
@@ -156,6 +157,7 @@ export const POST = async (req) => {
     categoryDoc.categories.forEach((parent) => {
       categoryStructure[parent.key] = {
         label: parent.label,
+        Image: parent.Image,
         category: {},
       };
       parent.children.forEach((child) => {

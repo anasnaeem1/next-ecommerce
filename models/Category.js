@@ -31,6 +31,10 @@ const parentCategorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    Image: {
+      type: String,
+      trim: true,
+    },
     children: {
       type: [childCategorySchema],
       default: [],
