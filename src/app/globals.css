@@ -64,3 +64,17 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Indeterminate strip for manual loading (LoadingBarProvider) */
+@keyframes manual-loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.manual-loading-bar {
+  animation: manual-loading-bar 1.15s ease-in-out infinite;
+}

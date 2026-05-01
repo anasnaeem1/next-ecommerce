@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
+import { useLoadingBar } from "./LoadingBarContext";
 
 type ChildCategory = {
   label: string;
@@ -35,6 +36,7 @@ interface CategoryProviderProps {
 }
 
 export function CategoryProvider({ children }: CategoryProviderProps) {
+  const { withLoading } = useLoadingBar();
   const [categories, setCategories] = useState<CategoryStructure>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function CategoryProvider({ children }: CategoryProviderProps) {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get("/api/categories");
+      const response = await withLoading(() => axios.get("/api/categories"));
       
       if (response.data.success) {
         setCategories(response.data.categories || {});
@@ -62,10 +64,12 @@ export function CategoryProvider({ children }: CategoryProviderProps) {
   const addParentCategory = async (label: string): Promise<boolean> => {
     try {
       setError(null);
-      const response = await axios.post("/api/categories", {
-        type: "parent",
-        label: label,
-      });
+      const response = await withLoading(() =>
+        axios.post("/api/categories", {
+          type: "parent",
+          label: label,
+        })
+      );
 
       if (response.data.success) {
         setCategories(response.data.categories || {});
@@ -84,11 +88,13 @@ export function CategoryProvider({ children }: CategoryProviderProps) {
   const addChildCategory = async (parentKey: string, label: string): Promise<boolean> => {
     try {
       setError(null);
-      const response = await axios.post("/api/categories", {
-        type: "child",
-        parentKey: parentKey,
-        label: label,
-      });
+      const response = await withLoading(() =>
+        axios.post("/api/categories", {
+          type: "child",
+          parentKey: parentKey,
+          label: label,
+        })
+      );
 
       if (response.data.success) {
         setCategories(response.data.categories || {});
