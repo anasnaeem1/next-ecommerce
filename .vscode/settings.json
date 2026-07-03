@@ -7,7 +7,7 @@
   "editor.suggestOnTriggerCharacters": true,
   "editor.parameterHints.enabled": false,
   "editor.inlineSuggest.enabled": false,
-  "editor.hover.enabled": false,
+  "editor.hover.enabled": "off",
   "editor.acceptSuggestionOnCommitCharacter": false,
   "editor.acceptSuggestionOnEnter": "off",
   "editor.tabCompletion": "off",

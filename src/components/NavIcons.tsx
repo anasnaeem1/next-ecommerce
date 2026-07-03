@@ -27,8 +27,8 @@ const NavIconsContent = () => {
 
   const navIcons = [
     {
-      id: "notificationIcon",
-      icon: "/notification.png",
+      id: "cartIcon",
+      icon: "/cart.png",
       disable: true,
       dropDown: [
         { label: "Profile", link: "/profile" },
@@ -36,8 +36,8 @@ const NavIconsContent = () => {
       ],
     },
     {
-      id: "cartIcon",
-      icon: "/cart.png",
+      id: "notificationIcon",
+      icon: "/heart.png",
       disable: true,
       dropDown: [
         { label: "Profile", link: "/profile" },
@@ -87,11 +87,11 @@ const NavIconsContent = () => {
             unoptimized
           />
 
-          {navIcon.id === "notificationIcon" && (
+          {/* {navIcon.id === "notificationIcon" && (
             <div className="absolute opacity-85 -top-2 -right-2 bg-gray-600 text-white text-[11px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg shadow-gray-400/60 ring-2 ring-white">
               2
             </div>
-          )}
+          )} */}
 
           {openIconId === navIcon.id && navIcon.id !== "cartIcon" && (
             <div className="absolute z-10 top-8 -left-4 bg-white shadow-lg rounded-lg p-2">

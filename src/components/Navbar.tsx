@@ -151,16 +151,16 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="sticky top-0 w-full z-[9999] bg-white border-b border-gray-200 h-20 flex justify-between items-center px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <div className="flex items-center gap-12">
+      <div className="sticky top-0 w-full z-[9999] bg-white border-b border-gray-200 h-20 flex justify-between items-center px-4">
+        <div className="flex items-center">
           <Link href="/" className="hover:opacity-80 transition-opacity duration-200">
             <Logo isAdmin={false} />
           </Link>
-          <NavLinks />
         </div>
 
+          <NavLinks />
         <div className="lg:flex hidden gap-3 items-center">
-          <div className="w-full max-w-[300px]">
+          <div className="w-full max-w-[400px]">
             <Search />
           </div>
           <NavIcons />

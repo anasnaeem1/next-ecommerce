@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 import { UserType } from "@/types";
+import { usePathname } from "next/navigation";
 
 export type NavLinksTypes =
   | {
@@ -12,6 +13,8 @@ export type NavLinksTypes =
   | any;
 
 const NavLinks = () => {
+  const pathname = usePathname();
+
   const { user: currentUser, userLoaded } = useContext(
     UserContext
   ) as NavLinksTypes;
@@ -32,11 +35,15 @@ const NavLinks = () => {
             ""
           ) : (
             <Link
-              href={link.link}
-              className="text-md font-medium text-gray-800 hover:text-gray-600 hover:underline underline-offset-4 transition-color duration-300 tracking-wider"
-            >
-              {link.label}
-            </Link>
+            href={link.link}
+            className={`relative inline-block text-md font-medium transition-colors duration-300 after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-[2px] after:bg-black after:transition-all after:duration-300 ${
+              pathname === link.link
+                ? "text-gray-900 after:w-full"
+                : "text-gray-700 hover:text-gray-900 after:w-0 hover:after:w-full"
+            }`}
+          >
+            {link.label}
+          </Link>
           )}
         </li>
       ))}
