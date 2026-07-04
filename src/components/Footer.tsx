@@ -39,138 +39,144 @@ const Footer = () => {
   ];
 
   return (
-    <div
-      className={`${
-        !showFooter ? "hidden" : "block"
-      } mt-20 py-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 bg-gray-100 text-sm`}
+    <footer
+      className={`${!showFooter ? "hidden" : "block"
+        } border-t border-neutral-200 bg-[#111111] text-neutral-300`}
     >
-      <div>
-        {/* TOP */}
-        <div className="flex flex-col md:flex-row justify-between gap-24">
-          {/* LEfT  */}
-          <div className="w-full md:w-1/2 lg:w-1/4 flex flex-col gap-8">
+      <div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+
+        {/* Main */}
+        <div className="flex flex-col lg:flex-row justify-between gap-14 py-16">
+
+          {/* Brand */}
+          <div className="max-w-sm">
             <Link href="/">
-              <h1 className="uppercase text-2xl tracking-wide">urban</h1>
+              <h2 className="text-3xl font-light tracking-[0.35em] text-white">
+                URBAN
+              </h2>
             </Link>
-            <p className="">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
-              cumque
+
+            <p className="mt-5 leading-7 text-neutral-400">
+              Premium essentials designed with timeless aesthetics,
+              exceptional craftsmanship and effortless everyday elegance.
             </p>
 
-            <div className="flex gap-6">
-              <Image src="/instagram.png" alt="" width={16} height={16} />
-              <Image src="/youtube.png" alt="" width={16} height={16} />
-              <Image src="/pinterest.png" alt="" width={16} height={16} />
-              <Image src="/x.png" alt="" width={16} height={16} />
-            </div>
-            <span className="font-semibold">heyanas42@gmail.com</span>
-            <span className="font-semibold">+1 234 567 890</span>
-            <ul className="flex justify-center items-center gap-4">
-              <ul className="flex gap-4 justify-center items-center">
-                {socials.map((social, index) => (
-                  <li key={index} className="relative group">
-                    <a
-                      href="#"
-                      data-social={social.name.toLowerCase()}
-                      className="relative flex justify-center items-center w-[40px] h-[40px] rounded-full text-[#4d4d4d] bg-white overflow-hidden transition duration-300 ease-in-out hover:text-white"
-                    >
-                      <span
-                        className="absolute bottom-0 left-0 w-full h-0 group-hover:h-full transition-all duration-300 ease-in-out"
-                        style={{ background: social.bg }}
-                      ></span>
-                      <Image
-                        src={social.icon}
-                        alt={social.name}
-                        width={24}
-                        height={24}
-                        className={`relative z-10 transition duration-300 ${
-                          social.name !== "YouTube"
-                            ? "group-hover:invert group-hover:brightness-0 group-hover:contrast-100"
-                            : ""
-                        }`}
-                      />
-                    </a>
-                    <span
-                      className="absolute top-[-30px] left-1/2 -translate-x-1/2 text-white text-sm px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-[-30px] transition-all duration-300"
-                      style={{ background: social.bg }}
-                    >
-                      {social.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </ul>
-          </div>
-          {/* CENTER */}
-          <div className="hidden lg:flex justify-between w-1/2">
-            <div className="flex flex-col justify-between">
-              <h1 className="font-semibold text-lg">COMPANY</h1>
-              <div className="flex flex-col gap-6">
-                <Link href="">About Us</Link>
-                <Link href="">Careers</Link>
-                <Link href="">Affiliates</Link>
-                <Link href="">Blog</Link>
-                <Link href="">Contact Us</Link>
-              </div>
-            </div>
-            <div className="flex flex-col justify-between">
-              <h1 className="font-semibold text-lg">SHOP</h1>
-              <div className="flex flex-col gap-6">
-                <Link href="">New Arrivals</Link>
-                <Link href="">Accessories</Link>
-                <Link href="">Men</Link>
-                <Link href="">Women</Link>
-                <Link href="">All Products</Link>
-              </div>
-            </div>
-            <div className="flex flex-col justify-between">
-              <h1 className="font-semibold text-lg">HELP</h1>
-              <div className="flex flex-col gap-6">
-                <Link href="">Customer Service</Link>
-                <Link href="">My Account</Link>
-                <Link href="">Find a Store</Link>
-                <Link href="">Legal & Privacy</Link>
-                <Link href="">Gift Card</Link>
-              </div>
+            <div className="mt-8 flex gap-3">
+              {socials.map((social) => (
+                <a
+                  key={social.name}
+                  href="#"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
+                >
+                  <Image
+                    src={social.icon}
+                    alt={social.name}
+                    width={18}
+                    height={18}
+                    className="brightness-0 invert opacity-90 transition duration-300 group-hover:opacity-100"
+                  />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* RIGHT */}
-          <div className="flex flex-col gap-8">
-            <h1 className="font-semibold text-lg uppercase">Subscribe</h1>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Distinctio fugiat hic
+          {/* Links */}
+          <div className="flex gap-20">
+
+            <div>
+              <p className="mb-6 text-xs uppercase tracking-[0.35em] text-neutral-500">
+                Shop
+              </p>
+
+              <div className="space-y-4">
+                <Link href="/list" className="block hover:text-white transition">
+                  New Arrivals
+                </Link>
+
+                <Link href="/list" className="block hover:text-white transition">
+                  Men
+                </Link>
+
+                <Link href="/list" className="block hover:text-white transition">
+                  Women
+                </Link>
+
+                <Link href="/list" className="block hover:text-white transition">
+                  Accessories
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-6 text-xs uppercase tracking-[0.35em] text-neutral-500">
+                Company
+              </p>
+
+              <div className="space-y-4">
+                <Link href="/about" className="block hover:text-white transition">
+                  About
+                </Link>
+
+                <Link href="/contact" className="block hover:text-white transition">
+                  Contact
+                </Link>
+
+                <Link href="/" className="block hover:text-white transition">
+                  Privacy
+                </Link>
+
+                <Link href="/" className="block hover:text-white transition">
+                  Terms
+                </Link>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Newsletter */}
+          <div className="max-w-sm">
+            <p className="mb-6 text-xs uppercase tracking-[0.35em] text-neutral-500">
+              Newsletter
             </p>
-            <div className="flex items-center">
+
+            <p className="mb-6 leading-7 text-neutral-400">
+              Join to receive exclusive drops and seasonal collections.
+            </p>
+
+            <div className="flex overflow-hidden rounded-full border border-white/10 bg-white/5">
               <input
-              suppressHydrationWarning
                 type="email"
-                id="Email"
-                name="Email"
-                placeholder="uiverse@verse.io"
-                autoComplete="off"
-                className="min-h-[50px] max-w-[150px] px-4 text-black text-sm border border-[#5e4dcd] rounded-l-md bg-transparent focus:outline-none focus:border-[#3898EC]"
+                placeholder="Email address"
+                className="w-full bg-transparent px-6 py-4 text-white placeholder:text-neutral-500 outline-none"
               />
-              <input
-              suppressHydrationWarning
-                type="submit"
-                value="Join"
-                className="min-h-[50px] px-4 bg-[#5e4dcd] text-white text-sm rounded-r-md cursor-pointer transition-colors duration-300 hover:bg-[#5e5dcd] border-none"
-              />
-            </div>
-            <span className="font-semibold">Secure Payments</span>
-            <div className="flex justify-between">
-              <Image src="/discover.png" alt="" width={40} height={20} />
-              <Image src="/skrill.png" alt="" width={40} height={20} />
-              <Image src="/paypal.png" alt="" width={40} height={20} />
-              <Image src="/mastercard.png" alt="" width={40} height={20} />
-              <Image src="/visa.png" alt="" width={40} height={20} />
+
+              <button className="bg-white px-8 font-medium text-black transition hover:bg-neutral-200">
+                Join
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Bottom */}
+
+        <div className="flex flex-col md:flex-row items-center justify-between border-t border-white/10 py-8 text-sm text-neutral-500">
+
+          <p>© 2026 URBAN. Crafted with precision.</p>
+
+          <div className="mt-4 flex items-center gap-6 md:mt-0">
+
+            <Image src="/visa.png" alt="" width={42} height={24} />
+
+            <Image src="/mastercard.png" alt="" width={42} height={24} />
+
+            <Image src="/paypal.png" alt="" width={42} height={24} />
+
+          </div>
+
+        </div>
+
       </div>
-    </div>
+    </footer>
   );
 };
 export default Footer;

@@ -1,5 +1,6 @@
 "use client";
 import { ReactNode, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export type AdminTableColumn = {
   key: string;
@@ -20,6 +21,7 @@ type AdminListTableProps<T> = {
 };
 
 export default function AdminListTable<T>({
+  
   title,
   columns,
   rows,
@@ -37,10 +39,19 @@ export default function AdminListTable<T>({
     if (!normalized) return rows;
     return rows.filter((row) => searchBy(row).toLowerCase().includes(normalized));
   }, [rows, query, searchBy]);
-
+  const router = useRouter();
   return (
     <div className={`flex flex-col gap-5 h-full min-h-full ${containerClassName}`}>
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <button
+          onClick={() => router.back()}
+          className="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition"
+        >
+          <span className="transition-transform group-hover:-translate-x-1">
+            ←
+          </span>
+          Back
+        </button>
         <h1 className="text-lg text-slate-900 font-semibold">{title}</h1>
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <input

@@ -94,143 +94,125 @@ const AddProductForm = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 border w-full bg-white p-5 rounded-xl"
-    >
-      <h2 className="text-2xl font-bold text-gray-800">Add New Product</h2>
+    <div className="w-full max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition"
+        >
+          <span className="transition-transform group-hover:-translate-x-1">
+            ←
+          </span>
+          Back
+        </button>
 
-      {/* Image Upload */}
-      <div>
-        <label className="block text-lg text-gray-700 font-medium mb-2">
-          Product Image
-        </label>
-        <FilesUploader />
+        <h2 className="text-lg font-medium tracking-tight text-gray-900">
+          Add Product
+        </h2>
+
+        <div className="w-10" />
       </div>
 
-      {/* Unique ID */}
-      <div>
-        <label className="block text-lg text-gray-700 font-medium mb-2">
-          Unique ID
-        </label>
-        <input
-          required
-          name="uniqueId"
-          placeholder="Enter unique product ID"
-          type="text"
-          className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition duration-200"
-        />
-      </div>
-
-      {/* Product Title */}
-      <div>
-        <label className="block text-lg text-gray-700 font-medium mb-2">
-          Product Title
-        </label>
-        <input
-          required
-          name="productTitle"
-          placeholder="Enter Product Title"
-          type="text"
-          className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition duration-200"
-        />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="block text-lg text-gray-700 font-medium mb-2">
-          Product Description
-        </label>
-        <textarea
-          required
-          name="productDesc"
-          rows={3}
-          placeholder="Enter product description"
-          className="w-full py-3 px-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition"
-        />
-      </div>
-
-      {/* Category */}
-      <div>
-        <label className="block text-lg text-gray-700 font-medium mb-2">
-          Category
-        </label>
-        <CategorySelector onCategoryChange={setSelectedCategory} />
-      </div>
-
-      {/* Price + Offer */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl bg-white p-8 shadow-sm border border-gray-100"
+      >
+        {/* Upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Price
+          <label className="text-sm text-gray-600 mb-2 block">
+            Product Image
           </label>
+          <FilesUploader />
+        </div>
+
+        {/* Inputs Grid */}
+        <div className="grid gap-5">
+          <input
+            required
+            name="uniqueId"
+            placeholder="Unique ID"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+          />
+
+          <input
+            required
+            name="productTitle"
+            placeholder="Product Title"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+          />
+
+          <textarea
+            required
+            name="productDesc"
+            rows={3}
+            placeholder="Product Description"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-gray-400"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="text-sm text-gray-600 mb-2 block">
+            Category
+          </label>
+          <CategorySelector onCategoryChange={setSelectedCategory} />
+        </div>
+
+        {/* Price */}
+        <div className="grid grid-cols-2 gap-4">
           <input
             required
             name="price"
             type="number"
-            placeholder="0"
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition"
+            placeholder="Price"
+            className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
           />
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Offer Price
-          </label>
           <input
             required
             name="offerPrice"
             type="number"
-            placeholder="0"
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition"
+            placeholder="Offer Price"
+            className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
           />
         </div>
-      </div>
 
-      {/* Total Stock */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Total Stock
-        </label>
+        {/* Stock */}
         <input
           required
           name="totalStock"
           type="number"
-          min="1"
-          placeholder="Total available stock"
-          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-500 transition"
+          placeholder="Total Stock"
+          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
         />
-      </div>
 
-      <div className="pt-4">
+        {/* Submit */}
         <button
           type="submit"
           disabled={isProcessing}
-          className={`relative shadow-lg inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-medium transition-all duration-300
-    ${isProcessing || productAdded
-              ? "bg-gray-400"
-              : "bg-gray-500 hover:bg-gray-600"
-            }
-    ${isProcessing ? "cursor-wait" : "cursor-pointer"}
-    shadow-md disabled:opacity-70 disabled:cursor-not-allowed
-  `}
+          className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition
+          ${
+            isProcessing || productAdded
+              ? "bg-gray-300 text-gray-600"
+              : "bg-gray-900 text-white hover:bg-black"
+          }`}
         >
           {isProcessing && (
-            <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           )}
 
-          {isProcessing ? (
-            "Saving..."
-          ) : productAdded ? (
-            <span className="flex items-center gap-1 animate-fade-in">
-              <span className="text-white font-semibold">Saved!</span>
-            </span>
-          ) : (
-            "Save Product"
-          )}
+          {isProcessing
+            ? "Saving..."
+            : productAdded
+            ? "Saved"
+            : "Save Product"}
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
-};
+}
+
 export default AddProductForm;

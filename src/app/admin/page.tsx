@@ -15,56 +15,108 @@ export default function AdminHomePage() {
   }, [userLoaded, currentUser]);
 
   return (
-    <div className="w-full min-h-[calc(100vh-140px)] rounded-xl border border-slate-300 bg-slate-50 p-6 md:p-8">
-      <div className="border border-slate-300 rounded-lg bg-white px-5 py-6 md:px-6 md:py-7 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Urban Buy</p>
-        <h1 className="mt-2 text-3xl md:text-4xl font-semibold text-gray-900">
-          Admin Control Center
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm md:text-base text-gray-600 leading-relaxed">
-          Manage your store with precision. Add products, remove outdated items, and keep your
-          inventory and orders organized from one clean dashboard.
-        </p>
-      </div>
+ <div className="w-full min-h-[calc(100vh-140px)] bg-gradient-to-b from-[#faf9f7] via-white to-[#f6f5f3]">
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+  {/* HERO */}
+  <div>
+    <div className="relative overflow-hidden rounded-2xl bg-white/70 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.05)] px-5 sm:px-8 py-8">
+
+      <p className="text-[10px] tracking-[0.35em] uppercase text-neutral-400">
+        Urban Buy Admin
+      </p>
+
+      <h1 className="mt-2 text-3xl sm:text-4xl font-light text-neutral-900 leading-tight">
+        Control your store
+        <span className="block font-medium">with clarity</span>
+      </h1>
+
+      <p className="mt-4 max-w-xl text-sm text-neutral-500 leading-6">
+        Manage products, orders, and inventory from a clean, fast and minimal dashboard.
+      </p>
+
+      {/* CTA */}
+      <div className="mt-6 flex flex-wrap gap-2">
         <Link
           href="/admin/products"
-          className="border border-slate-300 rounded-lg p-5 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
+          className="px-5 py-2.5 rounded-full bg-black text-white text-xs sm:text-sm hover:scale-[1.02] transition"
         >
-          <p className="text-xs uppercase tracking-widest text-indigo-600 font-semibold">Create</p>
-          <h2 className="mt-2 text-lg font-semibold text-gray-900">Add Product</h2>
-          <p className="mt-2 text-sm text-gray-600">Launch a new listing with details, images and pricing.</p>
-        </Link>
-
-        <Link
-          href="/admin/collections"
-          className="border border-slate-300 rounded-lg p-5 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
-        >
-          <p className="text-xs uppercase tracking-widest text-indigo-600 font-semibold">Manage</p>
-          <h2 className="mt-2 text-lg font-semibold text-gray-900">Inventory & Collections</h2>
-          <p className="mt-2 text-sm text-gray-600">Update products, review categories, and keep stock clean.</p>
+          + Add Product
         </Link>
 
         <Link
           href="/admin/orders"
-          className="border border-slate-300 rounded-lg p-5 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
+          className="px-5 py-2.5 rounded-full bg-white/60 border border-neutral-200 text-xs sm:text-sm text-neutral-700 hover:bg-white transition"
         >
-          <p className="text-xs uppercase tracking-widest text-indigo-600 font-semibold">Track</p>
-          <h2 className="mt-2 text-lg font-semibold text-gray-900">Orders</h2>
-          <p className="mt-2 text-sm text-gray-600">Monitor incoming orders and maintain fulfillment flow.</p>
+          Orders
+        </Link>
+
+        <Link
+          href="/admin/collections"
+          className="px-5 py-2.5 rounded-full bg-white/60 border border-neutral-200 text-xs sm:text-sm text-neutral-700 hover:bg-white transition"
+        >
+          Inventory
         </Link>
       </div>
-
-      <div className="mt-6 border border-slate-300 rounded-lg p-5 bg-white shadow-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Admin Capabilities</h3>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <span className="px-3 py-1.5 text-xs font-semibold text-slate-700 border border-indigo-200 rounded-md bg-indigo-50/60">Add Products</span>
-          <span className="px-3 py-1.5 text-xs font-semibold text-slate-700 border border-indigo-200 rounded-md bg-indigo-50/60">Delete / Remove Listings</span>
-          <span className="px-3 py-1.5 text-xs font-semibold text-slate-700 border border-indigo-200 rounded-md bg-indigo-50/60">Manage Inventory</span>
-          <span className="px-3 py-1.5 text-xs font-semibold text-slate-700 border border-indigo-200 rounded-md bg-indigo-50/60">Manage Orders</span>
-        </div>
-      </div>
     </div>
+  </div>
+
+  {/* GRID */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
+
+    {[
+      { title: "Products", desc: "Manage listings", link: "/admin/products" },
+      { title: "Inventory", desc: "Track stock", link: "/admin/collections" },
+      { title: "Orders", desc: "Handle purchases", link: "/admin/orders" },
+    ].map((item) => (
+      <Link
+        key={item.title}
+        href={item.link}
+        className="group relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] px-5 py-5 hover:shadow-[0_18px_50px_rgba(0,0,0,0.08)] transition"
+      >
+        <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-neutral-200 blur-3xl opacity-40 group-hover:opacity-60 transition" />
+
+        <h2 className="text-base font-medium text-neutral-900">
+          {item.title}
+        </h2>
+
+        <p className="mt-1 text-xs text-neutral-500">
+          {item.desc}
+        </p>
+
+        <div className="mt-4 text-xs text-neutral-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+          Open <span>→</span>
+        </div>
+      </Link>
+    ))}
+  </div>
+
+  {/* CAPABILITIES */}
+  <div className="mt-6">
+    <div className="rounded-2xl bg-white/60 backdrop-blur-xl px-5 py-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+
+      <h3 className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">
+        Capabilities
+      </h3>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {[
+          "Add Products",
+          "Remove Listings",
+          "Inventory",
+          "Orders",
+        ].map((cap) => (
+          <span
+            key={cap}
+            className="px-3 py-1.5 text-[11px] rounded-full bg-white border border-neutral-200 text-neutral-600"
+          >
+            {cap}
+          </span>
+        ))}
+      </div>
+
+    </div>
+  </div>
+
+</div>
   );
 }

@@ -34,6 +34,7 @@ const NavLinks = () => {
           {userLoaded && !currentUser && link.id === "admin" ? (
             ""
           ) : (
+            
             <Link
             href={link.link}
             className={`relative inline-block text-md font-medium transition-colors duration-300 after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-[2px] after:bg-black after:transition-all after:duration-300 ${

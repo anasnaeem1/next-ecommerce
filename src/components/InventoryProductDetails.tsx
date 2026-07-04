@@ -11,6 +11,7 @@ import {
   handleImagesChange,
 } from '../serverActions/Inventory/inventoryActions';
 import { ProductType, VariantType } from '@/types';
+import { useRouter } from "next/navigation";
 
 interface InventoryProductDetailsProps {
   product?: ProductType;
@@ -33,7 +34,7 @@ function mapVariantsForState(variants: VariantType[] | undefined) {
 function useProductSafe() {
   return useContext(ProductContext) ?? null;
 }
- 
+
 const InventoryProductDetails = ({ product: productProp }: InventoryProductDetailsProps = {}) => {
   const productContext = useProductSafe();
   const product = productContext?.product || productProp;
@@ -171,7 +172,7 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
         </div>
       );
     }
-  
+
     if (status === "error") {
       return (
         <div className="mb-4 p-3 bg-white border border-red-300 text-red-700 rounded-md text-sm">
@@ -188,12 +189,13 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
         </div>
       );
     }
-  
+
     return null;
   };
-
+  const router = useRouter();
   return (
     <div className="w-full border border-slate-300 rounded-md bg-slate-50 p-5 md:p-6">
+
       <div className="mb-5 flex items-center justify-between border border-slate-300 rounded-md bg-white px-4 py-3">
         <div className="flex items-center gap-2">
           {hasUnsavedChanges && (
@@ -202,10 +204,21 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
             </span>
           )}
 
+
           <ProductSaveStatusBadge status={productSaveStatus} />
         </div>
-        <div className="flex items-center gap-2">
+        <div className=" flex items-center gap-2">
           {!isEditing && (
+            <div className="flex gap-5">
+            <button
+              onClick={() => router.back()}
+              className="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition"
+            >
+              <span className="transition-transform group-hover:-translate-x-1">
+                ←
+              </span>
+              Back
+            </button>
             <button
               onClick={() => setIsEditing(true)}
               className="flex items-center gap-2 px-4 py-2 border border-slate-400 bg-white text-slate-800 hover:bg-slate-100 rounded-md transition-colors duration-200"
@@ -215,6 +228,7 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
               </svg>
               Edit Product
             </button>
+          </div>
           )}
           {isEditing && (
             <>
@@ -227,11 +241,10 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
               <button
                 onClick={onSaveProduct}
                 disabled={!hasUnsavedChanges || isSaving}
-                className={`px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 ${
-                  hasUnsavedChanges && !isSaving
-                    ? 'border border-indigo-700 bg-indigo-700 hover:bg-indigo-800 text-white'
-                    : 'border border-slate-300 bg-slate-100 cursor-not-allowed text-slate-400'
-                }`}
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 ${hasUnsavedChanges && !isSaving
+                  ? 'border border-indigo-700 bg-indigo-700 hover:bg-indigo-800 text-white'
+                  : 'border border-slate-300 bg-slate-100 cursor-not-allowed text-slate-400'
+                  }`}
               >
                 {isSaving ? (
                   <>
@@ -310,64 +323,64 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Pricing</h3>
         </div>
         <div className="p-5 md:p-6">
-        {isEditing ? (
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Base Price</label>
-              <input
-                type="number"
-                value={formData.basePrice}
-                onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
-                className="text-xl font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-300"
-                min="0"
-                step="0.01"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Offer Price (optional)</label>
-              <input
-                type="number"
-                value={formData.offerPrice}
-                onChange={(e) => setFormData({ ...formData, offerPrice: parseFloat(e.target.value) || 0 })}
-                className="text-xl font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-300"
-                min="0"
-                step="0.01"
-              />
-            </div>
+          {isEditing ? (
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Base Price</label>
+                <input
+                  type="number"
+                  value={formData.basePrice}
+                  onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
+                  className="text-xl font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-300"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Offer Price (optional)</label>
+                <input
+                  type="number"
+                  value={formData.offerPrice}
+                  onChange={(e) => setFormData({ ...formData, offerPrice: parseFloat(e.target.value) || 0 })}
+                  className="text-xl font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:border-indigo-300"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
 
-            <div className="flex flex-col gap-2 min-w-[220px]">
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Featured Product
-              </label>
-              <select
-                value={String(formData.featured)}
-                onChange={(e) =>
-                  setFormData({ ...formData, featured: e.target.value === "true" })
-                }
-                className="text-base font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:border-indigo-300"
-              >
-                <option value="true">Featured</option>
-                <option value="false">Not Featured</option>
-              </select>
+              <div className="flex flex-col gap-2 min-w-[220px]">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Featured Product
+                </label>
+                <select
+                  value={String(formData.featured)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, featured: e.target.value === "true" })
+                  }
+                  className="text-base font-medium text-gray-900 border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:border-indigo-300"
+                >
+                  <option value="true">Featured</option>
+                  <option value="false">Not Featured</option>
+                </select>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-4 p-4 rounded-md border border-gray-300 bg-white">
-            <div className="text-2xl font-semibold text-gray-900">
-              ${formData.offerPrice || formData.basePrice || 0}
+          ) : (
+            <div className="flex items-center gap-4 p-4 rounded-md border border-gray-300 bg-white">
+              <div className="text-2xl font-semibold text-gray-900">
+                ${formData.offerPrice || formData.basePrice || 0}
+              </div>
+              {formData.offerPrice > 0 && (
+                <>
+                  <div className="text-lg text-gray-400 line-through">
+                    ${formData.basePrice || 0}
+                  </div>
+                  <div className="text-xs text-gray-700 font-semibold bg-gray-100 px-2 py-1 rounded-md border border-gray-300">
+                    Save ${((formData.basePrice || 0) - (formData.offerPrice || 0)).toFixed(2)}
+                  </div>
+                </>
+              )}
             </div>
-            {formData.offerPrice > 0 && (
-              <>
-                <div className="text-lg text-gray-400 line-through">
-                  ${formData.basePrice || 0}
-                </div>
-                <div className="text-xs text-gray-700 font-semibold bg-gray-100 px-2 py-1 rounded-md border border-gray-300">
-                  Save ${((formData.basePrice || 0) - (formData.offerPrice || 0)).toFixed(2)}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+          )}
         </div>
       </div>
 
@@ -380,14 +393,14 @@ const InventoryProductDetails = ({ product: productProp }: InventoryProductDetai
           <ProductSaveStatusBadge
             status={saveStatus}
           />
-       
-        <VariantsTable
-          isSaving={isSaving}
-          saveStatus={saveStatus}
-          productId={uniqueId}
-          initialVariants={currentVariants}
-          onVariantsChange={onSaveVariants}
-        />
+
+          <VariantsTable
+            isSaving={isSaving}
+            saveStatus={saveStatus}
+            productId={uniqueId}
+            initialVariants={currentVariants}
+            onVariantsChange={onSaveVariants}
+          />
         </div>
       </div>
     </div>
