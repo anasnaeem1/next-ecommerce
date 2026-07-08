@@ -2,17 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useCategory } from "../../context/CategoryContext";
+import { motion, type Transition } from "framer-motion";
+import type { Variants } from "framer-motion";
 
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
+const smoothTransition: Transition = {
+  duration: 0.8,
+  ease: [0.22, 1, 0.36, 1] as const,
 };
 
 const cardVariants = {
@@ -27,10 +23,10 @@ const cardVariants = {
     scale: 1,
     transition: {
       duration: 0.8,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
-};
+} satisfies Variants;
 
 export default function CategoryList() {
   const { categories, loading, error } = useCategory();
@@ -59,7 +55,7 @@ export default function CategoryList() {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.15 }}
-      variants={containerVariants}
+      variants={cardVariants}
       className=" px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64"
     >
       {/* Heading */}
