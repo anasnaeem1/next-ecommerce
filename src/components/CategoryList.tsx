@@ -6,10 +6,6 @@ import { useCategory } from "../../context/CategoryContext";
 import { motion, type Transition } from "framer-motion";
 import type { Variants } from "framer-motion";
 
-const smoothTransition: Transition = {
-  duration: 0.8,
-  ease: [0.22, 1, 0.36, 1] as const,
-};
 
 const cardVariants = {
   hidden: {

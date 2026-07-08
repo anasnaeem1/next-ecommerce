@@ -4,6 +4,7 @@ import { ProductType } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 type ProductListProps = {
   products: ProductType[];
@@ -37,7 +38,7 @@ const cardVariants = {
       ease: [0.22, 1, 0.36, 1],
     },
   },
-};
+} satisfies Variants;
 
 export default function ProductList({
   products,
