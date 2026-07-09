@@ -21,6 +21,9 @@ interface StickyCard002Props {
   imageClassName?: string;
 }
 
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+
 const StickyCard002 = ({
   cards,
   className,
@@ -30,8 +33,6 @@ const StickyCard002 = ({
  const container = useRef<HTMLDivElement>(null);
 const stickyRef = useRef<HTMLDivElement>(null);
 const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 useGSAP(
   () => {
@@ -108,36 +109,41 @@ useGSAP(
     revertOnUpdate: true,
   }
 );
-  return (
+ return (
+  <div
+    ref={container}
+    className={cn("relative w-full", className)}
+  >
     <div
-  ref={stickyRef}
-  className="sticky-cards relative flex h-screen w-full items-center justify-center overflow-hidden bg-[#1A1816]"
->
-      <div className=" bg-[#1A1816] sticky-cards relative flex h-full w-full items-center justify-center overflow-hidden">
-        <div
-  className={cn(
-    " relative h-[600px] w-full max-w-full h-full overflow-hidden rounded-lg",
-    containerClassName
-  )}
-        >
-          {cards.map((card, i) => (
-            <img
-              key={card.id}
-              src={card.image}
-              alt={card.alt || ""}
-              className={cn(
-                "rounded-4xl absolute h-full w-full object-cover",
-                imageClassName,
-              )}
-              ref={(el) => {
-                imageRefs.current[i] = el;
-              }}
-            />
-          ))}
-        </div>
+      ref={stickyRef}
+      className="sticky-cards relative flex h-screen w-full items-center justify-center overflow-hidden bg-[#1A1816]"
+    >
+      <div
+        className={cn(
+          "relative h-full w-full overflow-hidden rounded-lg",
+          containerClassName
+        )}
+      >
+        {cards.map((card, index) => (
+          <img
+            key={card.id}
+            ref={(el) => {
+              imageRefs.current[index] = el;
+            }}
+            src={card.image}
+            alt={card.alt ?? ""}
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover rounded-4xl",
+              imageClassName
+            )}
+            loading={index === 0 ? "eager" : "lazy"}
+            draggable={false}
+          />
+        ))}
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 // Example usage component with default data
