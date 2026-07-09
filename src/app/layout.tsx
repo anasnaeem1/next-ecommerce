@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 import Notification from "@/components/Notification";
+import MouseFollowBackground from "../components/cursor";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ children,
           {children}
           <Notification />
           <Footer />
+           <MouseFollowBackground />
         </Providers>
       </body>
     </html>

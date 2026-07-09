@@ -57,7 +57,7 @@ const ListPage = async ({ searchParams }: PageProps) => {
 
 
   return (
-    <div className="w-full min-h-screen bg-white bg-[#FAFAF8] ">
+    <div className="w-full bg-white bg-[#FAFAF8] ">
       <CampaignBanner />
       <div className="bg-[#FAFAF8]">
         <div className="py-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 xl:px-12">
