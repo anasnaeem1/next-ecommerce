@@ -1,13 +1,16 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
+// import { motion } from "framer-motion";
+// import Image from "next/image";
+// import Link from "next/link";
 import {Skiper17} from "./TopProducts"
 
 export default function CampaignBanner() {
   return (
-    <Skiper17/>
+    <div className="bg-black">
+      <Skiper17/>
+
+    </div>
 //    <section className="hidden lg:block w-full overflow-hidden">
 //   <div className="relative">
 

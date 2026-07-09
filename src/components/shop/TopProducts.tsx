@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ReactLenis } from "lenis/react";
 import { useRef } from "react";
 
+
 import { cn } from "../../utils/lib";
 
 interface CardData {
@@ -26,87 +27,96 @@ const StickyCard002 = ({
   containerClassName,
   imageClassName,
 }: StickyCard002Props) => {
-  const container = useRef(null);
-  const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
+ const container = useRef<HTMLDivElement>(null);
+const stickyRef = useRef<HTMLDivElement>(null);
+const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
-  gsap.registerPlugin(ScrollTrigger);
-  useGSAP(
-    () => {
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-      const imageElements = imageRefs.current;
-      const totalCards = imageElements.length;
+useGSAP(
+  () => {
+    const images = imageRefs.current.filter(
+      Boolean
+    ) as HTMLImageElement[];
 
-      if (!imageElements[0]) return;
+    if (!stickyRef.current || images.length === 0) return;
 
-      gsap.set(imageElements[0], { y: "0%", scale: 1, rotation: 0 });
+    // Initial state
+    gsap.set(images, {
+      y: "100%",
+      scale: 1,
+      rotation: 0,
+    });
 
-      for (let i = 1; i < totalCards; i++) {
-        if (!imageElements[i]) continue;
-        gsap.set(imageElements[i], { y: "100%", scale: 1, rotation: 0 });
-      }
+    gsap.set(images[0], {
+      y: "0%",
+    });
 
-      const scrollTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".sticky-cards",
-          start: "top top",
-          end: `+=${window.innerHeight * (totalCards - 1)}`,
-          pin: true,
-          scrub: 0.5,
-          pinSpacing: true,
+    const timeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: stickyRef.current,
+        start: "top top",
+        end: () => `+=${window.innerHeight * (images.length - 1)}`,
+        pin: true,
+        scrub: 0.5,
+        pinSpacing: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    images.slice(0, -1).forEach((currentImage, index) => {
+      timeline.to(
+        currentImage,
+        {
+          scale: 0.7,
+          rotation: 5,
+          ease: "none",
+          duration: 1,
         },
-      });
+        index
+      );
 
-      for (let i = 0; i < totalCards - 1; i++) {
-        const currentImage = imageElements[i];
-        const nextImage = imageElements[i + 1];
-        const position = i;
-        if (!currentImage || !nextImage) continue;
+      timeline.to(
+        images[index + 1],
+        {
+          y: "0%",
+          ease: "none",
+          duration: 1,
+        },
+        index
+      );
+    });
 
-        scrollTimeline.to(
-          currentImage,
-          {
-            scale: 0.7,
-            rotation: 5,
-            duration: 1,
-            ease: "none",
-          },
-          position,
-        );
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
 
-        scrollTimeline.to(
-          nextImage,
-          {
-            y: "0%",
-            duration: 1,
-            ease: "none",
-          },
-          position,
-        );
-      }
+    if (container.current) {
+      resizeObserver.observe(container.current);
+    }
 
-      const resizeObserver = new ResizeObserver(() => {
-        ScrollTrigger.refresh();
-      });
-
-      if (container.current) {
-        resizeObserver.observe(container.current);
-      }
-
-      return () => {
-        resizeObserver.disconnect();
-        scrollTimeline.kill();
-        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      };
-    },
-    { scope: container },
-  );
-
+    return () => {
+      resizeObserver.disconnect();
+      timeline.scrollTrigger?.kill();
+      timeline.kill();
+    };
+  },
+  {
+    scope: container,
+    dependencies: [cards],
+    revertOnUpdate: true,
+  }
+);
   return (
-    <div className={cn("relative h-full w-full", className)} ref={container}>
-      <div className="h bg-[#1A1816] sticky-cards relative flex h-full w-full p-8 items-center justify-center overflow-hidden">
+    <div
+  ref={stickyRef}
+  className="sticky-cards relative flex h-screen w-full items-center justify-center overflow-hidden bg-[#1A1816]"
+>
+      <div className=" bg-[#1A1816] sticky-cards relative flex h-full w-full items-center justify-center overflow-hidden">
         <div
   className={cn(
-    "relative h-[600px] w-full max-w-full h-full overflow-hidden rounded-lg",
+    " relative h-[600px] w-full max-w-full h-full overflow-hidden rounded-lg",
     containerClassName
   )}
         >
@@ -157,7 +167,7 @@ const Skiper17 = () => {
 
   return (
     <ReactLenis root>
-     <div className="h-full w-full">
+    <div className="relative w-full">
   <StickyCard002 cards={defaultCards} />
 </div>
     </ReactLenis>
